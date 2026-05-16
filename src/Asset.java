@@ -1,31 +1,4 @@
-blic class Ass  private int asset_ID;
-    private int portfolio_ID;
-    private String assetName;
-    private String assetType;
-    private int allocationPercentage;
-    private int amount;
-
-
-    public Asset(
-        int asset_ID,
-        int portfolio_ID,
-        String assetName,
-        String assetType,
-        int allocationPercentage,
-        int amount
-    ){
-        this.asset_ID = asset_ID;
-        this.portfolio_ID = portfolio_ID;
-        this.assetName = assetName;
-        this.assetType = assetType;
-        this.allocationPercentage = allocationPercentage;
-        this.amount = amount;
-    }
-
-
-    public int getAsset_ID() {
-        return asset_ID;
- public class Asset {
+public class Asset {
     private int asset_ID;
     private int portfolio_ID;
     private String assetName;
@@ -91,6 +64,3 @@ blic class Ass  private int asset_ID;
         this.amount = amount;
     }
 }
-
-
-  
