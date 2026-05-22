@@ -6,6 +6,14 @@ public class Portfolio {
     private String riskLevel;
 
 
+    /**
+     * 
+     * @param portfolio_ID
+     * @param user_ID
+     * @param portfolioName
+     * @param totalValue
+     * @param riskLevel
+     */
     public Portfolio(
         int portfolio_ID,
         int user_ID,

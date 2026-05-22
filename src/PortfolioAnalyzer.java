@@ -7,6 +7,16 @@ public class PortfolioAnalyzer {
     private double projectedGrowth;
     private int simulationYear;
 
+    /**
+     * 
+     * @param analysis_ID
+     * @param portfolio_ID
+     * @param bestCase
+     * @param worstCase
+     * @param estimatedValue
+     * @param projectedGrowth
+     * @param simulationYear
+     */
     public PortfolioAnalyzer(
         int analysis_ID,
         int portfolio_ID,
