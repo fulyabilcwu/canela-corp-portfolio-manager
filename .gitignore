@@ -1,0 +1,11 @@
+# Compiled Java class files
+*.class
+
+# JFreeChart library JARs (keep locally, don't commit)
+libs/
+
+# macOS junk
+.DS_Store
+
+# VS Code settings
+.vscode/
