@@ -19,26 +19,19 @@ public class portfolioMan {
 
         int userId = -1;
 
-        String sql =
-                "INSERT INTO Users " +
-                "(name, email, password, age, income, risk_tolerance, net_worth) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users " + "(name, email, password, age, income, risk_tolerance, net_worth) " + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (
+        try 
+        (
             Connection conn = DBConnection.getConnection();
-
-            PreparedStatement stmt =
-                    conn.prepareStatement(
-                            sql,
-                            PreparedStatement.RETURN_GENERATED_KEYS
-                    );
+            PreparedStatement stmt = conn.prepareStatement( sql, PreparedStatement.RETURN_GENERATED_KEYS);
         )
+        
         {
 
             stmt.setString(1, name);
 
-            stmt.setString(2,
-                    name.toLowerCase() + "@example.com");
+            stmt.setString(2, name.toLowerCase() + "@example.com");
 
             stmt.setString(3, "pass123");
 
@@ -52,12 +45,11 @@ public class portfolioMan {
 
             stmt.executeUpdate();
 
-            ResultSet rs =
-                    stmt.getGeneratedKeys();
+            ResultSet res =stmt.getGeneratedKeys();
 
-            if(rs.next())
+            if(res.next())
             {
-                userId = rs.getInt(1);
+                userId = res.getInt(1);
             }
 
         }
@@ -69,29 +61,20 @@ public class portfolioMan {
         return userId;
     }
 
-    public int insertPortfolio(
-            int userId,
-            String portfolioName,
-            String risk,
-            double totalValue)
+    public int insertPortfolio(int userId,String portfolioName,String risk,double totalValue)
     {
 
         int portfolioId = -1;
 
-        String sql =
-                "INSERT INTO Portfolios " +
-                "(user_id, portfolio_name, total_value, risk_level) " +
-                "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Portfolios " +"(user_id, portfolio_name, total_value, risk_level) " + "VALUES (?, ?, ?, ?)";
 
-        try (
+        try 
+        (
             Connection conn = DBConnection.getConnection();
-
             PreparedStatement stmt =
-                    conn.prepareStatement(
-                            sql,
-                            PreparedStatement.RETURN_GENERATED_KEYS
-                    );
+                    conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
         )
+        
         {
 
             stmt.setInt(1, userId);
@@ -104,12 +87,11 @@ public class portfolioMan {
 
             stmt.executeUpdate();
 
-            ResultSet rs =
-                    stmt.getGeneratedKeys();
+            ResultSet res =stmt.getGeneratedKeys();
 
-            if(rs.next())
+            if(res.next())
             {
-                portfolioId = rs.getInt(1);
+                portfolioId = res.getInt(1);
             }
 
         }
@@ -119,5 +101,30 @@ public class portfolioMan {
         }
 
         return portfolioId;
+        
+        
+    }
+    public void addAsset(int portfolioId, String assetType, double allocation)
+    {
+    	String sql = "INSERT INTO ASSETS " + "(portfolio_id, asset_type, allocation_percentage, amount) " + "VALUES (?, ?, ?, ?)";
+    	
+    	try(Connection conn = DBConnection.getConnection();
+    			PreparedStatement stmt = conn.prepareStatement(sql);)
+    	{
+    		stmt.setInt(1,  portfolioId);
+    		
+    		stmt.setString(2, assetType.toUpperCase());
+    		
+    		stmt.setDouble(3, allocation);
+    		
+    		stmt.setDouble(4,0);
+    		
+    		stmt.executeUpdate();
+    	}
+    	catch(SQLException e)
+    	{
+    		e.printStackTrace();
+  
+    	}
     }
 }
