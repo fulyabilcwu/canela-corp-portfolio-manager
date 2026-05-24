@@ -105,4 +105,56 @@ public class MonteCarloSimulator {
             years
         );
     }
+    /**
+     * Like runSimulation, but also returns the year-by-year paths
+     * for the worst-case, median, and best-case scenarios.
+     * Used by the Monte Carlo GUI panel to draw the 3 trajectory lines.
+     *
+     * @return a double[3][years+1] array where:
+     *           result[0] = worst-case path
+     *           result[1] = estimated/median path
+     *           result[2] = best-case path
+     *         Each path starts at startingValue at index 0.
+     */
+    public double[][] runSimulationWithPaths(Portfolio portfolio, List<Asset> assets, int years) {
+
+        // Step 1: weighted return + volatility (same as runSimulation)
+        double weightedReturn = 0.0;
+        double weightedVolatility = 0.0;
+        for (Asset asset : assets) {
+            double weight = asset.getAllocationPercentage() / 100.0;
+            weightedReturn     += weight * getExpectedReturn(asset.getAssetType());
+            weightedVolatility += weight * getVolatility(asset.getAssetType());
+        }
+
+        // Step 2: run NUM_SIMULATIONS, but keep the FULL path of each one
+        double startingValue = portfolio.getTotalValue();
+        Random random = new Random();
+        double[][] allPaths = new double[NUM_SIMULATIONS][years + 1];
+
+        for (int sim = 0; sim < NUM_SIMULATIONS; sim++) {
+            allPaths[sim][0] = startingValue;
+            double value = startingValue;
+            for (int y = 1; y <= years; y++) {
+                double randomReturn = weightedReturn + weightedVolatility * random.nextGaussian();
+                value = value * (1 + randomReturn);
+                allPaths[sim][y] = value;
+            }
+        }
+
+        // Step 3: for each YEAR, pick the worst/median/best across all sims
+        double[][] result = new double[3][years + 1];
+        for (int y = 0; y <= years; y++) {
+            double[] yearValues = new double[NUM_SIMULATIONS];
+            for (int sim = 0; sim < NUM_SIMULATIONS; sim++) {
+                yearValues[sim] = allPaths[sim][y];
+            }
+            java.util.Arrays.sort(yearValues);
+            result[0][y] = yearValues[(int)(NUM_SIMULATIONS * 0.05)];   // worst
+            result[1][y] = yearValues[NUM_SIMULATIONS / 2];              // median
+            result[2][y] = yearValues[(int)(NUM_SIMULATIONS * 0.95)];   // best
+        }
+
+        return result;
+    }
 }
