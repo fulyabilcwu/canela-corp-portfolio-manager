@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import database.DBConnection;
+import portfolioBuilderGUI.Asset;
+import portfolioBuilderGUI.Portfolio;
 
 public class portfolioMan {
 
@@ -126,5 +129,71 @@ public class portfolioMan {
     		e.printStackTrace();
   
     	}
+    }
+    
+    public ArrayList<Portfolio> getPortfoliosByUser(int userId)
+    {
+        ArrayList<Portfolio> portfolios = new ArrayList<>();
+
+        String sql = "SELECT * FROM Portfolios WHERE user_id = ?";
+
+        try
+        (
+            Connection conn = DBConnection.getConnection();
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+        )
+        
+        {
+            stmt.setInt(1, userId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while(rs.next())
+            {
+                Portfolio portfolio =
+                        new Portfolio( rs.getInt("portfolio_id"), rs.getInt("user_id"), rs.getString("portfolio_name"),  rs.getDouble("total_value"), rs.getString("risk_level") );
+
+                portfolios.add(portfolio);
+            }
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return portfolios;
+    }
+    
+    public ArrayList<Asset> getAssetsByPortfolio(int portfolioId)
+    {
+        ArrayList<Asset> assets = new ArrayList<>();
+
+        String sql = "SELECT * FROM Assets WHERE portfolio_id = ?";
+
+        try
+        (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+        )
+        
+        {
+            stmt.setInt(1, portfolioId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while(rs.next())
+            {
+                Asset asset = new Asset( rs.getInt("asset_id"), rs.getInt("portfolio_id"),  rs.getString("asset_type"), rs.getString("asset_type"), (int)rs.getDouble("allocation_percentage"), (int)rs.getDouble("amount") );
+
+                assets.add(asset);
+            }
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return assets;
     }
 }
