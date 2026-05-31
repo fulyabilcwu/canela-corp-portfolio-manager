@@ -92,6 +92,7 @@ Asset.java              — Represents individual assets within a portfolio
 PortfolioAnalyzer.java  — Runs Monte Carlo and long-term growth calculations
 DatabaseManager.java    — Handles all MySQL database connections and queries
 Main.java               — Entry point, ties all components together
+Admin.java              _ Extends User and implements admin-related functions
 ```
 
 ---
@@ -99,7 +100,7 @@ Main.java               — Entry point, ties all components together
 ## Application Screens
 
 1. **Authentication Page** — Sign in with email/password or sign up for a new account
-2. **Portfolio Builder** — Enter age, income, risk tolerance, net worth, and portfolio name
+2. **Portfolio Builder** — Enter age, income, net worth
 3. **Portfolio Dashboard** — View asset allocations with a pie chart, save or delete portfolios
 4. **Long-Term Potential** — Line graph projecting portfolio value at 10, 25, and 50 years
 5. **Monte Carlo Simulation** — Summary box showing estimated, worst-case, and best-case values
