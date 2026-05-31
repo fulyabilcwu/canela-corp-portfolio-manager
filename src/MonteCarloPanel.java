@@ -17,6 +17,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  *
  * Shows:
  *  - dark coral header with title and "Back to Portfolio" link
+ *  - Portfolio dropdown (loaded from the portfolioapp MySQL database)
  *  - "Years to simulate" input + Run Simulation button
  *  - Summary Box with Estimated Value, Worst Case, Best Case
  *  - Line chart of the 3 trajectories (worst/estimated/best) year by year
@@ -33,12 +34,20 @@ public class MonteCarloPanel extends JPanel {
     private JTextField yearsField;
     private JPanel chartContainer;   // holds the chart, replaced on each run
 
+    // Phase 3: live portfolio selection from the database
+    private JComboBox<Portfolio> portfolioCombo;
+    private Portfolio currentPortfolio;
+    private List<Asset> currentAssets = new ArrayList<>();
+
     public MonteCarloPanel() {
         setLayout(new BorderLayout());
         setBackground(BODY_COLOR);
 
         add(buildHeader(), BorderLayout.NORTH);
         add(buildBody(), BorderLayout.CENTER);
+
+        // Load all portfolios from MySQL and auto-select the first
+        loadPortfoliosFromDatabase();
     }
 
     private JPanel buildHeader() {
@@ -51,7 +60,7 @@ public class MonteCarloPanel extends JPanel {
         title.setForeground(TEXT_COLOR);
         header.add(title, BorderLayout.WEST);
 
-        JLabel backLink = new JLabel("← BACK TO PORTFOLIO");
+        JLabel backLink = new JLabel("\u2190 BACK TO PORTFOLIO");
         backLink.setFont(new Font("Arial", Font.BOLD, 12));
         backLink.setForeground(TEXT_COLOR);
         backLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -66,6 +75,44 @@ public class MonteCarloPanel extends JPanel {
         body.setBackground(BODY_COLOR);
         body.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
+        // --- Portfolio selector row (Phase 3) ---
+        JPanel portfolioRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        portfolioRow.setBackground(BODY_COLOR);
+        JLabel portfolioLabel = new JLabel("Portfolio:");
+        portfolioLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        portfolioLabel.setForeground(TEXT_COLOR);
+        portfolioRow.add(portfolioLabel);
+
+        portfolioCombo = new JComboBox<>();
+        portfolioCombo.setPreferredSize(new Dimension(300, 28));
+        portfolioCombo.setFont(new Font("Arial", Font.PLAIN, 13));
+        portfolioCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel l = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+                l.setFont(new Font("Arial", Font.PLAIN, 13));
+                if (value instanceof Portfolio) {
+                    Portfolio p = (Portfolio) value;
+                    l.setText(p.getPortfolioName()
+                        + "  ($" + String.format("%,.2f", p.getTotalValue())
+                        + ", " + p.getRiskLevel() + ")");
+                }
+                return l;
+            }
+        });
+        portfolioCombo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onPortfolioSelected();
+            }
+        });
+        portfolioRow.add(portfolioCombo);
+        portfolioRow.setAlignmentX(Component.CENTER_ALIGNMENT);
+        body.add(portfolioRow);
+        body.add(Box.createRigidArea(new Dimension(0, 10)));
+
         // --- Input row ---
         JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
         inputRow.setBackground(BODY_COLOR);
@@ -77,10 +124,9 @@ public class MonteCarloPanel extends JPanel {
         inputRow.add(yearsField);
 
         JButton runButton = new JButton("Run Simulation");
-        runButton.setFont(new Font("Arial", Font.BOLD, 12));
+        runButton.setFont(new Font("Arial", Font.BOLD, 13));
         runButton.setBackground(HEADER_COLOR);
-        runButton.setForeground(Color.WHITE);
-        runButton.setFocusPainted(false);
+        runButton.setForeground(TEXT_COLOR);
         runButton.setOpaque(true);
         runButton.setBorderPainted(false);
         inputRow.add(runButton);
@@ -147,27 +193,70 @@ public class MonteCarloPanel extends JPanel {
         return l;
     }
 
+    /**
+     * Pulls all portfolios from MySQL and populates the dropdown.
+     * Auto-selecting the first item also triggers onPortfolioSelected()
+     * which loads the assets for that portfolio.
+     */
+    private void loadPortfoliosFromDatabase() {
+        List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
+        if (portfolios.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No portfolios found in the database.\n"
+                + "Make sure MySQL is running and portfolioapp is loaded.",
+                "Database Empty",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        for (Portfolio p : portfolios) {
+            portfolioCombo.addItem(p);
+        }
+    }
+
+    /**
+     * Fires whenever the user picks a portfolio from the dropdown.
+     * Caches the selection and re-fetches its assets so the next
+     * simulation runs on real data.
+     */
+    private void onPortfolioSelected() {
+        Portfolio selected = (Portfolio) portfolioCombo.getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        currentPortfolio = selected;
+        currentAssets = DatabaseManager.getAssetsByPortfolioId(
+            selected.getPortfolio_ID());
+    }
+
     private void runSimulation() {
         try {
             int years = Integer.parseInt(yearsField.getText());
 
-            // Fake test data (TODO Phase 3: load real data from DatabaseManager)
-            Portfolio fakePortfolio = new Portfolio(1, 1, "Test Portfolio", 10000.0, "MEDIUM");
-            List<Asset> fakeAssets = new ArrayList<>();
-            fakeAssets.add(new Asset(1, 1, "S&P 500 ETF",     "STOCK", 60.0, 6000.0));
-            fakeAssets.add(new Asset(2, 1, "Treasury Bonds",  "BOND",  30.0, 3000.0));
-            fakeAssets.add(new Asset(3, 1, "Savings Account", "CASH",  10.0, 1000.0));
+            if (currentPortfolio == null
+                    || currentAssets == null
+                    || currentAssets.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Please select a portfolio with assets.",
+                    "No Portfolio Selected",
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             MonteCarloSimulator simulator = new MonteCarloSimulator();
 
-            // Update Summary Box
-            PortfolioAnalyzer result = simulator.runSimulation(fakePortfolio, fakeAssets, years);
-            estimatedLabel.setText(String.format("ESTIMATED VALUE:  $%,.2f", result.getEstimatedValue()));
-            worstCaseLabel.setText(String.format("WORST CASE:  $%,.2f", result.getWorstCase()));
-            bestCaseLabel.setText(String.format("BEST CASE:  $%,.2f", result.getBestCase()));
+            // Update Summary Box with real portfolio data
+            PortfolioAnalyzer result = simulator.runSimulation(
+                currentPortfolio, currentAssets, years);
+            estimatedLabel.setText(String.format(
+                "ESTIMATED VALUE:  $%,.2f", result.getEstimatedValue()));
+            worstCaseLabel.setText(String.format(
+                "WORST CASE:  $%,.2f", result.getWorstCase()));
+            bestCaseLabel.setText(String.format(
+                "BEST CASE:  $%,.2f", result.getBestCase()));
 
             // Draw chart
-            double[][] paths = simulator.runSimulationWithPaths(fakePortfolio, fakeAssets, years);
+            double[][] paths = simulator.runSimulationWithPaths(
+                currentPortfolio, currentAssets, years);
             updateChart(paths, years);
 
         } catch (NumberFormatException ex) {
