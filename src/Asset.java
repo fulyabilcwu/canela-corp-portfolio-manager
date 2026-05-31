@@ -6,7 +6,15 @@ public class Asset {
     private int allocationPercentage;
     private int amount;
 
-
+    /**
+     * 
+     * @param asset_ID
+     * @param portfolio_ID
+     * @param assetName
+     * @param assetType
+     * @param allocationPercentage
+     * @param amount
+     */
     public Asset(
         int asset_ID,
         int portfolio_ID,
