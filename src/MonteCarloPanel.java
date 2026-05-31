@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,10 @@ import org.jfree.data.xy.XYSeriesCollection;
  *  - "Years to simulate" input + Run Simulation button
  *  - Summary Box with Estimated Value, Worst Case, Best Case
  *  - Line chart of the 3 trajectories (worst/estimated/best) year by year
+ *
+ * The "Back to Portfolio" link triggers the Runnable registered via
+ * setOnBack(), letting the host app (e.g. the dashboard) decide what
+ * navigation should happen.
  */
 public class MonteCarloPanel extends JPanel {
 
@@ -39,6 +45,9 @@ public class MonteCarloPanel extends JPanel {
     private Portfolio currentPortfolio;
     private List<Asset> currentAssets = new ArrayList<>();
 
+    // Navigation callback — set by the host app via setOnBack()
+    private Runnable onBack;
+
     public MonteCarloPanel() {
         setLayout(new BorderLayout());
         setBackground(BODY_COLOR);
@@ -48,6 +57,15 @@ public class MonteCarloPanel extends JPanel {
 
         // Load all portfolios from MySQL and auto-select the first
         loadPortfoliosFromDatabase();
+    }
+
+    /**
+     * Register what should happen when the user clicks "Back to Portfolio".
+     * The host app sets this to navigate back to the dashboard / portfolio
+     * builder screen. If never set, clicking the link does nothing.
+     */
+    public void setOnBack(Runnable r) {
+        this.onBack = r;
     }
 
     private JPanel buildHeader() {
@@ -64,6 +82,14 @@ public class MonteCarloPanel extends JPanel {
         backLink.setFont(new Font("Arial", Font.BOLD, 12));
         backLink.setForeground(TEXT_COLOR);
         backLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backLink.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (onBack != null) {
+                    onBack.run();
+                }
+            }
+        });
         header.add(backLink, BorderLayout.EAST);
 
         return header;
@@ -193,11 +219,6 @@ public class MonteCarloPanel extends JPanel {
         return l;
     }
 
-    /**
-     * Pulls all portfolios from MySQL and populates the dropdown.
-     * Auto-selecting the first item also triggers onPortfolioSelected()
-     * which loads the assets for that portfolio.
-     */
     private void loadPortfoliosFromDatabase() {
         List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
         if (portfolios.isEmpty()) {
@@ -213,11 +234,6 @@ public class MonteCarloPanel extends JPanel {
         }
     }
 
-    /**
-     * Fires whenever the user picks a portfolio from the dropdown.
-     * Caches the selection and re-fetches its assets so the next
-     * simulation runs on real data.
-     */
     private void onPortfolioSelected() {
         Portfolio selected = (Portfolio) portfolioCombo.getSelectedItem();
         if (selected == null) {
@@ -244,7 +260,6 @@ public class MonteCarloPanel extends JPanel {
 
             MonteCarloSimulator simulator = new MonteCarloSimulator();
 
-            // Update Summary Box with real portfolio data
             PortfolioAnalyzer result = simulator.runSimulation(
                 currentPortfolio, currentAssets, years);
             estimatedLabel.setText(String.format(
@@ -254,7 +269,6 @@ public class MonteCarloPanel extends JPanel {
             bestCaseLabel.setText(String.format(
                 "BEST CASE:  $%,.2f", result.getBestCase()));
 
-            // Draw chart
             double[][] paths = simulator.runSimulationWithPaths(
                 currentPortfolio, currentAssets, years);
             updateChart(paths, years);
@@ -300,10 +314,19 @@ public class MonteCarloPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Monte Carlo - Canela Portfolio Manager");
+        final JFrame frame = new JFrame("Monte Carlo - Canela Portfolio Manager");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 700);
-        frame.add(new MonteCarloPanel());
+        MonteCarloPanel panel = new MonteCarloPanel();
+        // Standalone test: clicking "Back to Portfolio" closes the window.
+        // In the integrated app the host wires this to real navigation.
+        panel.setOnBack(new Runnable() {
+            @Override
+            public void run() {
+                frame.dispose();
+            }
+        });
+        frame.add(panel);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }

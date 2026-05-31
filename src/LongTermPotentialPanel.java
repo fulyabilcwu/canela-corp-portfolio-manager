@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +15,10 @@ import java.util.List;
  * The pyramid widens at the bottom to visually emphasize long-term growth.
  *
  * Phase 3: portfolios are loaded live from the portfolioapp MySQL database
- * via DatabaseManager. Selecting a portfolio from the dropdown re-renders
- * the pyramid with that portfolio's projections.
+ * via DatabaseManager. Selecting a portfolio re-renders the pyramid.
  *
- * Uses LongTermProjector under the hood (deterministic compound growth).
+ * The "Back to Portfolio" link triggers the Runnable registered via
+ * setOnBack(), letting the host app decide what navigation should happen.
  */
 public class LongTermPotentialPanel extends JPanel {
 
@@ -33,6 +35,9 @@ public class LongTermPotentialPanel extends JPanel {
     private JLabel subtitle;
     private PyramidComponent pyramid;
 
+    // Navigation callback — set by the host app via setOnBack()
+    private Runnable onBack;
+
     public LongTermPotentialPanel() {
         setLayout(new BorderLayout());
         setBackground(BODY_COLOR);
@@ -40,8 +45,14 @@ public class LongTermPotentialPanel extends JPanel {
         add(buildHeader(), BorderLayout.NORTH);
         add(buildBody(), BorderLayout.CENTER);
 
-        // Load portfolios from MySQL and auto-select the first
         loadPortfoliosFromDatabase();
+    }
+
+    /**
+     * Register what should happen when the user clicks "Back to Portfolio".
+     */
+    public void setOnBack(Runnable r) {
+        this.onBack = r;
     }
 
     private JPanel buildHeader() {
@@ -58,6 +69,14 @@ public class LongTermPotentialPanel extends JPanel {
         backLink.setFont(new Font("Arial", Font.BOLD, 12));
         backLink.setForeground(TEXT_COLOR);
         backLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        backLink.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (onBack != null) {
+                    onBack.run();
+                }
+            }
+        });
         header.add(backLink, BorderLayout.EAST);
 
         return header;
@@ -68,12 +87,10 @@ public class LongTermPotentialPanel extends JPanel {
         body.setBackground(BODY_COLOR);
         body.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // --- Top section: portfolio selector + subtitle ---
         JPanel topSection = new JPanel();
         topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
         topSection.setBackground(BODY_COLOR);
 
-        // Portfolio selector row
         JPanel portfolioRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
         portfolioRow.setBackground(BODY_COLOR);
         JLabel portfolioLabel = new JLabel("Portfolio:");
@@ -111,7 +128,6 @@ public class LongTermPotentialPanel extends JPanel {
         topSection.add(portfolioRow);
         topSection.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Subtitle (updates when portfolio changes)
         subtitle = new JLabel("BASED OFF: --", SwingConstants.CENTER);
         subtitle.setFont(new Font("Arial", Font.BOLD, 13));
         subtitle.setForeground(TEXT_COLOR);
@@ -120,17 +136,12 @@ public class LongTermPotentialPanel extends JPanel {
 
         body.add(topSection, BorderLayout.NORTH);
 
-        // Pyramid component (custom drawn)
         pyramid = new PyramidComponent();
         body.add(pyramid, BorderLayout.CENTER);
 
         return body;
     }
 
-    /**
-     * Pulls all portfolios from MySQL and populates the dropdown.
-     * Auto-selecting the first item triggers onPortfolioSelected().
-     */
     private void loadPortfoliosFromDatabase() {
         List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
         if (portfolios.isEmpty()) {
@@ -146,10 +157,6 @@ public class LongTermPotentialPanel extends JPanel {
         }
     }
 
-    /**
-     * Fires whenever the user picks a portfolio. Caches the selection
-     * and its assets, updates the subtitle, and repaints the pyramid.
-     */
     private void onPortfolioSelected() {
         Portfolio selected = (Portfolio) portfolioCombo.getSelectedItem();
         if (selected == null) {
@@ -166,10 +173,6 @@ public class LongTermPotentialPanel extends JPanel {
         }
     }
 
-    /**
-     * Custom-drawn pyramid showing 3 growth tiers.
-     * Each tier is a horizontal band, wider as you go down.
-     */
     private class PyramidComponent extends JPanel {
 
         public PyramidComponent() {
@@ -189,7 +192,6 @@ public class LongTermPotentialPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            // Empty state: no portfolio loaded yet
             if (currentPortfolio == null
                     || currentAssets == null
                     || currentAssets.isEmpty()) {
@@ -201,22 +203,19 @@ public class LongTermPotentialPanel extends JPanel {
                 return;
             }
 
-            // Run the projection for each tier on the live portfolio
             LongTermProjector projector = new LongTermProjector();
             double v10 = projector.projectFinalValue(currentPortfolio, currentAssets, 10);
             double v25 = projector.projectFinalValue(currentPortfolio, currentAssets, 25);
             double v50 = projector.projectFinalValue(currentPortfolio, currentAssets, 50);
             double start = currentPortfolio.getTotalValue();
 
-            // Pyramid geometry
             int centerX  = w / 2;
             int topY     = 40;
             int bottomY  = h - 40;
             int tierH    = (bottomY - topY) / 3;
-            int maxWidth = (int)(w * 0.55);   // bottom tier width
-            int minWidth = (int)(w * 0.15);   // top tier width
+            int maxWidth = (int)(w * 0.55);
+            int minWidth = (int)(w * 0.15);
 
-            // Draw 3 tiers from top to bottom
             drawTier(g2, centerX, topY,             tierH, minWidth,
                      (minWidth + maxWidth) / 3,
                      "10 YEARS",  v10, start);
@@ -232,15 +231,9 @@ public class LongTermPotentialPanel extends JPanel {
                      "50 YEARS",  v50, start);
         }
 
-        /**
-         * Draw a single trapezoidal tier with a label and value beside it.
-         * @param topW  width at the top of this tier
-         * @param botW  width at the bottom of this tier
-         */
         private void drawTier(Graphics2D g2, int centerX, int y, int height,
                               int topW, int botW,
                               String label, double value, double start) {
-            // The tier shape: trapezoid (top narrower than bottom)
             int[] xs = {
                 centerX - topW/2, centerX + topW/2,
                 centerX + botW/2, centerX - botW/2
@@ -253,14 +246,12 @@ public class LongTermPotentialPanel extends JPanel {
             g2.setStroke(new BasicStroke(2));
             g2.drawPolygon(xs, ys, 4);
 
-            // Year label inside the tier
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 16));
             FontMetrics fm = g2.getFontMetrics();
             int textW = fm.stringWidth(label);
             g2.drawString(label, centerX - textW/2, y + height/2 + fm.getAscent()/2 - 2);
 
-            // Dollar value to the right of the tier
             g2.setColor(TEXT_COLOR);
             g2.setFont(new Font("Arial", Font.BOLD, 18));
             String valueStr = String.format("$%,.0f", value);
@@ -268,7 +259,6 @@ public class LongTermPotentialPanel extends JPanel {
             int valueY = y + height/2 + 5;
             g2.drawString(valueStr, valueX, valueY);
 
-            // Growth percentage below the value
             g2.setFont(new Font("Arial", Font.PLAIN, 12));
             double growthPct = ((value - start) / start) * 100;
             String growthStr = String.format("(+%.0f%% from $%,.0f)", growthPct, start);
@@ -277,10 +267,19 @@ public class LongTermPotentialPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Long-Term Potential - Canela Portfolio Manager");
+        final JFrame frame = new JFrame("Long-Term Potential - Canela Portfolio Manager");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
-        frame.add(new LongTermPotentialPanel());
+        LongTermPotentialPanel panel = new LongTermPotentialPanel();
+        // Standalone test: clicking "Back to Portfolio" closes the window.
+        // In the integrated app the host wires this to real navigation.
+        panel.setOnBack(new Runnable() {
+            @Override
+            public void run() {
+                frame.dispose();
+            }
+        });
+        frame.add(panel);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
