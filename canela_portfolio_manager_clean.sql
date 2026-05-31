@@ -11,6 +11,8 @@ CREATE TABLE Users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    security_question VARCHAR(55),
+    security_answer VARCHAR(55),
     age INT,
     income DECIMAL(15,2),
     risk_tolerance VARCHAR(20),
@@ -67,13 +69,13 @@ CREATE TABLE PortfolioAnalyzer (
 
 -- SAMPLE DATA
 
-INSERT INTO Users (name, email, password, age, income, risk_tolerance, net_worth)
+INSERT INTO Users (name, email, password, age, income, net_worth)
 VALUES
-('John Doe', 'john@example.com', 'pass123', 25, 55000.00, 'MEDIUM', 15000.00),
-('Sarah Lee', 'sarah@example.com', 'pass123', 32, 85000.00, 'HIGH', 50000.00),
-('Michael Smith', 'michael@example.com', 'pass123', 45, 120000.00, 'LOW', 200000.00),
-('Emily Davis', 'emily@example.com', 'pass123', 29, 70000.00, 'MEDIUM', 30000.00),
-('David Brown', 'david@example.com', 'pass123', 38, 95000.00, 'HIGH', 80000.00);
+('John Doe', 'john@example.com', 'pass123', 25, 55000.00, 15000.00),
+('Sarah Lee', 'sarah@example.com', 'pass123', 32, 85000.00, 50000.00),
+('Michael Smith', 'michael@example.com', 'pass123', 45, 120000.00, 200000.00),
+('Emily Davis', 'emily@example.com', 'pass123', 29, 70000.00, 30000.00),
+('David Brown', 'david@example.com', 'pass123', 38, 95000.00, 80000.00);
 
 INSERT INTO Portfolios (user_id, portfolio_name, total_value, risk_level)
 VALUES
