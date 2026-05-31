@@ -10,16 +10,17 @@ import java.util.List;
  * DatabaseManager handles all MySQL database interactions for the
  * Canela Corp Portfolio Manager application.
  *
- * Combined version including BOTH:
- *  - User/auth methods (signup, login, security question, reset password)
- *  - Portfolio/asset write methods (save, add, generate, analysis)
+ * Combined version including:
+ *  - User/auth methods (signup, login, security Q&A, reset password, updateUserInfo, deleteUser)
+ *  - Portfolio write methods (addPortfolio, generatePortfolio, deletePortfolio, saveAnalysis)
+ *  - Asset write methods (addAsset, updateAsset, deleteAsset)
  *  - Portfolio/asset read methods (used by Monte Carlo + Long-Term panels)
  *
  * Authors: Fulya Bilgin, Naya
  */
 public class DatabaseManager {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp";
+    private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
@@ -27,10 +28,6 @@ public class DatabaseManager {
     // CONNECTION
     // ============================================================
 
-    /**
-     * Opens a connection to the portfolioapp database.
-     * Returns null on connection failure.
-     */
     public static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -51,12 +48,9 @@ public class DatabaseManager {
     }
 
     // ============================================================
-    // USER AUTH (sign-up, login, forgot password)
+    // USER AUTH
     // ============================================================
 
-    /**
-     * Creates a new user record during sign-up.
-     */
     public static boolean initiateUser(String name, String email, String password, String question, String answer) {
         String sql = "INSERT INTO Users (name, email, password, security_question, security_answer) "
                    + "VALUES (?, ?, ?, ?, ?)";
@@ -80,9 +74,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Returns the security question for a given email.
-     */
     public String getSecurityQuestion(String email) {
         String query = "SELECT security_question FROM users WHERE email = ?";
 
@@ -103,9 +94,6 @@ public class DatabaseManager {
         return null;
     }
 
-    /**
-     * Verifies the security answer for a given email.
-     */
     public boolean verifySecurityQuestion(String email, String answer) {
         String query = "SELECT security_answer FROM users WHERE email = ?";
 
@@ -127,9 +115,6 @@ public class DatabaseManager {
         return false;
     }
 
-    /**
-     * Resets the user's password.
-     */
     public boolean resetPassword(String email, String password) {
         String query = "UPDATE users SET password = ? where email = ?;";
 
@@ -148,11 +133,8 @@ public class DatabaseManager {
         return false;
     }
 
-    /**
-     * Verifies login credentials.
-     */
     public static boolean loginUser(String email, String password) {
-        String sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
+        String sql = "SELECT * FROM Users WHERE email = ? AND password = ?;";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -170,21 +152,121 @@ public class DatabaseManager {
         }
     }
 
+    public static boolean updateUserInfo(
+        int user_id,
+        String name,
+        String email,
+        String password,
+        Integer age,
+        Double income,
+        Double netWorth,
+        String securityQ,
+        String securityA) {
+
+        StringBuilder sql = new StringBuilder("UPDATE Users SET ");
+        ArrayList<Object> values = new ArrayList<>();
+
+        if (!name.isEmpty()) {
+            sql.append("name = ?, ");
+            values.add(name);
+        }
+
+        if (!email.isEmpty()) {
+            sql.append("email = ?, ");
+            values.add(email);
+        }
+
+        if (!password.isEmpty()) {
+            sql.append("password = ?, ");
+            values.add(password);
+        }
+
+        if (age != null) {
+            sql.append("age = ?, ");
+            values.add(age);
+        }
+
+        if (income != null) {
+            sql.append("income = ?, ");
+            values.add(income);
+        }
+
+        if (netWorth != null) {
+            sql.append("net_worth = ?, ");
+            values.add(netWorth);
+        }
+
+        if (!securityQ.isEmpty()) {
+            sql.append("security_question = ?, ");
+            values.add(Double.parseDouble(securityQ));
+        }
+        if (!securityA.isEmpty()) {
+            sql.append("security_answer = ?, ");
+            values.add(Double.parseDouble(securityA));
+        }
+
+        if (values.isEmpty()) {
+            System.out.println("No fields provided for update.");
+            return false;
+        }
+
+        sql.setLength(sql.length() - 2);
+
+        sql.append(" WHERE user_id = ?");
+        values.add(user_id);
+
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+
+            for (int i = 1; i <= values.size(); i++) {
+                statement.setObject(i, values.get(i));
+            }
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not update user.");
+            e.printStackTrace();
+            return false;
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid numeric input.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteUser(int user_id) {
+        String query = "DELETE from users WHERE user_id = ?;";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, user_id);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not delete user.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // ============================================================
-    // PORTFOLIO + ASSET WRITES (used by builder / dashboard)
+    // PORTFOLIO + ASSET WRITES
     // ============================================================
 
-    /**
-     * Saves a new portfolio for a given user.
-     */
-    public static boolean savePortfolio(int userId, String portfolioName, double totalValue, String riskLevel) {
+    public static boolean addPortfolio(int user_id, String portfolioName, Double totalValue, String riskLevel) {
         String sql = "INSERT INTO Portfolios (user_id, portfolio_name, total_value, risk_level) "
                    + "VALUES (?, ?, ?, ?)";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, userId);
+            statement.setInt(1, user_id);
             statement.setString(2, portfolioName);
             statement.setDouble(3, totalValue);
             statement.setString(4, riskLevel);
@@ -199,35 +281,7 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Adds an asset to a portfolio.
-     */
-    public static boolean addAsset(int portfolioId, String assetType, double allocationPercentage, double amount) {
-        String sql = "INSERT INTO Assets (portfolio_id, asset_type, allocation_percentage, amount) "
-                   + "VALUES (?, ?, ?, ?)";
-
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, portfolioId);
-            statement.setString(2, assetType);
-            statement.setDouble(3, allocationPercentage);
-            statement.setDouble(4, amount);
-
-            statement.executeUpdate();
-            return true;
-
-        } catch (SQLException e) {
-            System.out.println("Could not add asset.");
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Updates user profile info used for portfolio generation.
-     */
-    public static boolean generatePortfolio(int age, double income, double net_worth, String email) {
+    public static boolean generatePortfolio(int age, Double income, Double net_worth, String email) {
         String query = "UPDATE users SET age = ?, income = ?, net_worth = ? where email = ?;";
 
         try (Connection connection = getConnection();
@@ -247,14 +301,25 @@ public class DatabaseManager {
         return false;
     }
 
-    public static boolean setAsset(/** */) {
-        return false;
+    public static boolean deletePortfolio(int portfolio_id) {
+        String query = "DELETE FROM portfolios WHERE portfolio_id = ?;";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, portfolio_id);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not delete portfolio.");
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    /**
-     * Saves a portfolio analysis result.
-     */
-    public static boolean saveAnalysis(int portfolioId, double estimatedValue, double projectedGrowth, int simulationYear, double bestCase, double worstCase) {
+    public static boolean saveAnalysis(int portfolio_id, Double estimatedValue, Double projectedGrowth, int simulationYear, Double bestCase, Double worstCase) {
         String sql = "INSERT INTO PortfolioAnalyzer "
                    + "(portfolio_id, estimated_value, projected_growth, simulation_year, best_case, worst_case) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
@@ -262,7 +327,7 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, portfolioId);
+            statement.setInt(1, portfolio_id);
             statement.setDouble(2, estimatedValue);
             statement.setDouble(3, projectedGrowth);
             statement.setInt(4, simulationYear);
@@ -279,13 +344,98 @@ public class DatabaseManager {
         }
     }
 
+    public static boolean addAsset(int portfolio_id, String asset_type, Double allocation_percentage, Double amount) {
+        String query = "INSERT INTO users (portfolio_id, asset_type, allocation_percentage, amount) VALUES (?, ?, ?, ?);";
+
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, portfolio_id);
+            statement.setString(2, asset_type);
+            statement.setDouble(3, allocation_percentage);
+            statement.setDouble(4, amount);
+
+            statement.executeQuery();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean updateAsset(int asset_id, String asset_type, Double allocation_percentage, Double amount) {
+        StringBuilder sql = new StringBuilder("UPDATE assets SET ");
+        ArrayList<Object> values = new ArrayList<>();
+
+        if (!asset_type.isEmpty()) {
+            sql.append("asset_type = ?, ");
+            values.add(asset_type);
+        }
+
+        if (allocation_percentage != null) {
+            sql.append("allocation_percentage = ?, ");
+            values.add(allocation_percentage);
+        }
+
+        if (amount != null) {
+            sql.append("amount = ?, ");
+            values.add(amount);
+        }
+
+        if (values.isEmpty()) {
+            System.out.println("No fields were provided to update.");
+            return false;
+        }
+
+        sql.setLength(sql.length() - 2);
+
+        sql.append(" WHERE asset_id = ?");
+        values.add(asset_id);
+
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+
+            for (int i = 1; i <= values.size(); i++) {
+                statement.setObject(i, values.get(i));
+            }
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not update asset.");
+            e.printStackTrace();
+            return false;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteAsset(int asset_id) {
+        String query = "DELETE from assets WHERE asset_id = ?;";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, asset_id);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not delete asset.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // ============================================================
     // PORTFOLIO + ASSET READS (used by Monte Carlo / Long-Term panels)
     // ============================================================
 
-    /**
-     * Returns all portfolios in the database, ordered by portfolio_id.
-     */
     public static List<Portfolio> getAllPortfolios() {
         List<Portfolio> portfolios = new ArrayList<>();
         String sql = "SELECT portfolio_id, user_id, portfolio_name, "
@@ -314,9 +464,6 @@ public class DatabaseManager {
         return portfolios;
     }
 
-    /**
-     * Returns a single portfolio by its ID, or null if not found.
-     */
     public static Portfolio getPortfolioById(int portfolioId) {
         String sql = "SELECT portfolio_id, user_id, portfolio_name, "
                    + "total_value, risk_level "
@@ -346,11 +493,6 @@ public class DatabaseManager {
         return null;
     }
 
-    /**
-     * Returns all assets belonging to the given portfolio.
-     * Synthesizes a display name from asset_type since the DB does
-     * not store one.
-     */
     public static List<Asset> getAssetsByPortfolioId(int portfolioId) {
         List<Asset> assets = new ArrayList<>();
         String sql = "SELECT asset_id, portfolio_id, asset_type, "
@@ -386,10 +528,6 @@ public class DatabaseManager {
         return assets;
     }
 
-    /**
-     * Converts a DB asset type like "REAL_ESTATE" to a friendly
-     * display name like "Real Estate Holdings".
-     */
     private static String formatAssetName(String assetType) {
         if (assetType == null) {
             return "Unknown Asset";
@@ -411,10 +549,6 @@ public class DatabaseManager {
     // TEST
     // ============================================================
 
-    /**
-     * Quick smoke test to verify the database connection and data loading.
-     * Run with: java -cp ".:../libs/*" DatabaseManager
-     */
     public static void main(String[] args) {
         System.out.println("=== Testing DatabaseManager ===");
         System.out.println();
