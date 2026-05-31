@@ -40,7 +40,7 @@ The application also provides long-term growth projections and Monte Carlo simul
 | Layer | Technology |
 |-------|-----------|
 | Language | Java |
-| UI Framework | JavaFX |
+| UI Framework | Swing & awt|
 | Database | MySQL |
 | IDE | VS Code |
 | Version Control | Git / GitHub |
@@ -58,7 +58,6 @@ The application also provides long-term growth projections and Monte Carlo simul
 | password | varchar(255) | |
 | age | int | |
 | income | decimal(12,2) | |
-| risk_tolerance | enum('LOW','MEDIUM','HIGH') | |
 | net_worth | decimal(15,2) | |
 | created | timestamp | |
 
