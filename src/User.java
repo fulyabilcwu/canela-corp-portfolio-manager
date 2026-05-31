@@ -113,6 +113,22 @@ public class User {
         this.income = income;
     }
 
+    public String getSecurityQ() {
+        return securityQ;
+    }
+
+    public void setSecurityQ(String securityQ) {
+        this.securityQ = securityQ;
+    }
+
+    public String getSecurityA() {
+        return securityA;
+    }
+
+    public void setSecurityA(String securityA) {
+        this.securityA = securityA;
+    }
+
     public boolean generatePortfolio(){
         return DatabaseManager.generatePortfolio(age, income, netWorth, email);
     }
