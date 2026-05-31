@@ -8,7 +8,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp";
     private static final String USER = "root";
-    private static final String PASSWORD = "RootUser420";
+    private static final String PASSWORD = "";
 
     public static Connection getConnection() {
         try {
@@ -38,32 +38,32 @@ public class DatabaseManager {
      * 
      * should the risk tolerance be an input or should it be generated later?
      * */
-    public static boolean createUser(String name, String email, String password, int age,
-                                     double income, String riskTolerance, double netWorth) {
+    // public static boolean createUser(String name, String email, String password, int age,
+    //                                  double income, String riskTolerance, double netWorth) {
 
-        String sql = "INSERT INTO Users (name, email, password, age, income, risk_tolerance, net_worth) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    //     String sql = "INSERT INTO Users (name, email, password, age, income, risk_tolerance, net_worth) "
+    //                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+    //     try (Connection connection = getConnection();
+    //          PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, name);
-            statement.setString(2, email);
-            statement.setString(3, password);
-            statement.setInt(4, age);
-            statement.setDouble(5, income);
-            statement.setString(6, riskTolerance);
-            statement.setDouble(7, netWorth);
+    //         statement.setString(1, name);
+    //         statement.setString(2, email);
+    //         statement.setString(3, password);
+    //         statement.setInt(4, age);
+    //         statement.setDouble(5, income);
+    //         statement.setString(6, riskTolerance);
+    //         statement.setDouble(7, netWorth);
 
-            statement.executeUpdate();
-            return true;
+    //         statement.executeUpdate();
+    //         return true;
 
-        } catch (SQLException e) {
-            System.out.println("Could not create user.");
-            e.printStackTrace();
-            return false;
-        }
-    }
+    //     } catch (SQLException e) {
+    //         System.out.println("Could not create user.");
+    //         e.printStackTrace();
+    //         return false;
+    //     }
+    // }
 
     // this is for the sign-up interface
     public static boolean initiateUser(String name, String email, String password, String question, String answer) {
@@ -89,6 +89,81 @@ public class DatabaseManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public String getSecurityQuestion(String email) {
+
+        String query =
+                "SELECT security_question FROM users WHERE email = ?";
+
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+
+
+            statement.setString(1, email);
+
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+                return result.getString("security_question");
+            }
+
+            connection.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean verifySecurityQuestion(String email, String answer) {
+
+        String query = "SELECT security_answer FROM users WHERE email = ?";
+
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+
+
+            statement.setString(1, email);
+
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+
+            String storedAnswer = result.getString("security_answer");
+
+            return storedAnswer.equalsIgnoreCase(answer.trim());
+        }
+
+            connection.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    public boolean resetPassword(String email, String password) {
+
+        String query = "UPDATE users SET password = ? where email = ?;";
+
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+
+
+            statement.setString(1, password);
+            statement.setString(2, email);
+
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 
@@ -159,6 +234,31 @@ public class DatabaseManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean generatePortfolio(int age, double income, double net_worth, String email){
+        String query = "UPDATE users SET age = ?, income = ?, net_worth = ? where email = ?;";
+
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+
+
+            statement.setInt(1, age);
+            statement.setDouble(2, income);
+            statement.setDouble(3, net_worth);
+            statement.setString(4, email);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean setAsset(/** */){
+        return false;
     }
 
     public static boolean saveAnalysis(int portfolioId, double estimatedValue,

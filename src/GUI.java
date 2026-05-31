@@ -29,8 +29,6 @@ public class GUI extends JFrame{
         mainPanel.add(analysisPanel(), "Analysis");
         mainPanel.add(moteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
-        mainPanel.add(securityQuestionVerificationPanel(), "Verify Security Question");
-        mainPanel.add(resetPasswordPanel(), "Reset Password");
 
 
 
@@ -263,7 +261,7 @@ public class GUI extends JFrame{
                     else security_question = (String) questionList.getSelectedItem();
                     boolean accountCreationSuccess = database.initiateUser(name, emailField.getText(), passwd, security_question, answer.getText());
                     if(accountCreationSuccess){
-                        JOptionPane.showMessageDialog(null, "Account creation successfull!", "Account Status", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Account creation successful!", "Account Status", JOptionPane.INFORMATION_MESSAGE);
                         fNameF.setText("");
                         mNameF.setText("");
                         lNameF.setText("");
@@ -437,7 +435,7 @@ public class GUI extends JFrame{
         layout.insets = new Insets(10, 10, 10, 10);
         layout.fill = GridBagConstraints.HORIZONTAL;
 
-        ImageIcon newAccountIcon = new ImageIcon(getClass().getResource("account.png"));
+        ImageIcon newAccountIcon = new ImageIcon(getClass().getResource("secure.png"));
         Image i = newAccountIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
         JLabel icon = new JLabel(new ImageIcon(i));
         icon.setForeground(Color.white);
@@ -454,201 +452,153 @@ public class GUI extends JFrame{
         insidePanel.add(title, layout);
 
 
-        JLabel email = new JLabel("Email");
+        JLabel email = new JLabel("Email *");
         email.setForeground(Color.WHITE);
         layout.gridx = 0;
-        layout.gridy = 3;
+        layout.gridy = 2;
         insidePanel.add(email, layout);
 
         JTextField emailField = new JTextField(20);
         emailField.setPreferredSize(new Dimension(20, 30));
-        layout.gridx = 1;
-        layout.gridy = 4;
-        insidePanel.add(emailField, layout);
-
-        JButton continueButton = new JButton("Continue");
-        continueButton.setBackground(new Color(60, 60, 60));
-        continueButton.setForeground(Color.WHITE);
-        continueButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
-        layout.gridx = 0;
-        layout.gridy = 8;
-        insidePanel.add(continueButton, layout);
-
-        continueButton.addActionListener(e -> {
-            String input = emailField.getText();
-            // verify from database
-
-            cardLayout.show(mainPanel, "Verify Security Question");
-        });
-        panel.add(insidePanel);
-        return panel;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private JPanel securityQuestionVerificationPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Color.white);
-
-        JPanel insidePanel = new JPanel(new GridBagLayout());
-        insidePanel.setPreferredSize(new Dimension(600, 700));
-        insidePanel.setBackground(new Color(45, 45, 42));
-        insidePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(80, 80, 80), 1),
-                BorderFactory.createEmptyBorder(30, 45, 30, 45)
-        ));
-
-        GridBagConstraints layout = new GridBagConstraints();
-        layout.insets = new Insets(10, 10, 10, 10);
-        layout.fill = GridBagConstraints.HORIZONTAL;
-
-        ImageIcon newAccountIcon = new ImageIcon(getClass().getResource("secure.png"));
-        Image i = newAccountIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        JLabel icon = new JLabel(new ImageIcon(i));
-        icon.setForeground(Color.white);
-        layout.gridx = 0;
-        layout.gridy = 0;
-        layout.gridwidth = 2;
-        insidePanel.add(icon, layout);
-
-        JLabel title = new JLabel("Security Question", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 40));
-        title.setForeground(Color.WHITE);
-        layout.gridx = 0;
-        layout.gridy = 1;
-        insidePanel.add(title, layout);
-
-        JLabel question = new JLabel("Question");
-        question.setForeground(Color.WHITE);
         layout.gridx = 0;
         layout.gridy = 3;
-        layout.gridwidth = 2;
-        insidePanel.add(question, layout);
+        insidePanel.add(emailField, layout);
 
-        /**EDIT LATER */
-        // grab the chosen question associated with the user email from database and display here
+        JLabel question = new JLabel("Answer the following question:");
+        question.setForeground(Color.WHITE);
+        layout.gridx = 0;
+        layout.gridy = 4;
+        insidePanel.add(question, layout);
+        question.setVisible(false);
+
         JTextField questionField = new JTextField();
         questionField.setPreferredSize(new Dimension(20, 30));
         layout.gridx = 0;
-        layout.gridy = 4;
+        layout.gridy = 5;
         insidePanel.add(questionField, layout);
+        questionField.setVisible(false);
 
-        JLabel answer = new JLabel("Enter Your Answer");
+        JLabel answer = new JLabel("Enter Your Answer *");
         answer.setForeground(Color.WHITE);
         layout.gridx = 0;
-        layout.gridy = 5;
+        layout.gridy = 6;
         insidePanel.add(answer, layout);
+        answer.setVisible(false);
 
         JTextField answerField = new JTextField();
         answerField.setPreferredSize(new Dimension(20, 30));
         layout.gridx = 0;
-        layout.gridy = 6;
+        layout.gridy = 7;
         insidePanel.add(answerField, layout);
+        answerField.setVisible(false);
 
-        JButton verifyButton = new JButton("Verify");
-        verifyButton.setBackground(new Color(60, 60, 60));
-        verifyButton.setForeground(Color.WHITE);
-        verifyButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
-        layout.gridx = 0;
-        layout.gridy = 8;
-        insidePanel.add(verifyButton, layout);
-
-        verifyButton.addActionListener(e -> {
-            String chosenQuestion = questionField.getText();
-            String input = answerField.getText();
-            // verify from database
-
-            cardLayout.show(mainPanel, "Reset Password");
-        });
-        panel.add(insidePanel);
-        return panel;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private JPanel resetPasswordPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Color.white);
-
-        JPanel insidePanel = new JPanel(new GridBagLayout());
-        insidePanel.setPreferredSize(new Dimension(600, 700));
-        insidePanel.setBackground(new Color(45, 45, 42));
-        insidePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(80, 80, 80), 1),
-                BorderFactory.createEmptyBorder(30, 45, 30, 45)
-        ));
-
-        GridBagConstraints layout = new GridBagConstraints();
-        layout.insets = new Insets(10, 10, 10, 10);
-        layout.fill = GridBagConstraints.HORIZONTAL;
-
-        ImageIcon newAccountIcon = new ImageIcon(getClass().getResource("passwd.png"));
-        Image i = newAccountIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        JLabel icon = new JLabel(new ImageIcon(i));
-        icon.setForeground(Color.white);
-        layout.gridx = 0;
-        layout.gridy = 0;
-        layout.gridwidth = 2;
-        insidePanel.add(icon, layout);
-
-        JLabel title = new JLabel("Create a new Password", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 40));
-        title.setForeground(Color.WHITE);
-        layout.gridx = 0;
-        layout.gridy = 1;
-        insidePanel.add(title, layout);
-
-        JLabel passwordLabel = new JLabel("New Password");
+        JLabel passwordLabel = new JLabel("New Password *");
         passwordLabel.setForeground(Color.white);
         layout.gridx = 0;
-        layout.gridy = 3;
+        layout.gridy = 8;
         insidePanel.add(passwordLabel, layout);
+        passwordLabel.setVisible(false);
 
         JTextField newPassword = new JTextField();
         newPassword.setPreferredSize(new Dimension(20, 30));
         layout.gridx = 0;
-        layout.gridy = 4;
+        layout.gridy = 9;
         layout.gridwidth = 2;
         insidePanel.add(newPassword, layout);
+        newPassword.setVisible(false);
 
-        JLabel confirmationLabel = new JLabel("Confirm New Password");
+        JLabel confirmationLabel = new JLabel("Confirm New Password *");
         confirmationLabel.setForeground(Color.white);
         layout.gridx = 0;
-        layout.gridy = 5;
+        layout.gridy = 10;
         insidePanel.add(confirmationLabel, layout);
+        confirmationLabel.setVisible(false);
 
         JTextField confirmedNewPasswd = new JTextField();
         confirmedNewPasswd.setPreferredSize(new Dimension(20, 30));
         layout.gridx = 0;
-        layout.gridy = 6;
+        layout.gridy = 11;
         insidePanel.add(confirmedNewPasswd, layout);
+        confirmedNewPasswd.setVisible(false);
 
-        JButton createPassword = new JButton("Apply New Password");
-        createPassword.setBackground(new Color(60, 60, 60));
-        createPassword.setForeground(Color.WHITE);
-        createPassword.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+        JButton step1 = new JButton("Continue");
+        step1.setBackground(new Color(60, 60, 60));
+        step1.setForeground(Color.WHITE);
+        step1.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        layout.gridx = 0;
+        layout.gridy = 4;
+        insidePanel.add(step1, layout);
+
+        JButton step2 = new JButton("Continue");
+        step2.setBackground(new Color(60, 60, 60));
+        step2.setForeground(Color.WHITE);
+        step2.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
         ));
         layout.gridx = 0;
         layout.gridy = 8;
-        layout.anchor = GridBagConstraints.CENTER;
-        layout.fill = GridBagConstraints.NONE;
-        insidePanel.add(createPassword, layout);
+        insidePanel.add(step2, layout);
+        step2.setVisible(false);
 
-        createPassword.addActionListener(e -> {
-            String new_password = newPassword.getText();
-            // update database
-            JOptionPane.showMessageDialog(null, "Password was changed successfully", "Password Status", JOptionPane.INFORMATION_MESSAGE);
-            cardLayout.show(mainPanel, "Sign In");
+        JButton step3 = new JButton("Continue");
+        step3.setBackground(new Color(60, 60, 60));
+        step3.setForeground(Color.WHITE);
+        step3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        layout.gridx = 0;
+        layout.gridy = 12;
+        insidePanel.add(step3, layout);
+        step3.setVisible(false);
+
+        step1.addActionListener(e -> {
+            questionField.setText(database.getSecurityQuestion(emailField.getText()));
+            question.setVisible(true);
+            questionField.setVisible(true);
+            answer.setVisible(true);
+            answerField.setVisible(true);
+            step1.setVisible(false);
+            step2.setVisible(true);
+
+            
+            //cardLayout.show(mainPanel, "Verify Security Question");
         });
+
+        step2.addActionListener(e -> {
+            if(!answerField.getText().isEmpty()){
+                boolean verify = database.verifySecurityQuestion(emailField.getText(), answerField.getText());
+                if(verify){
+                    JOptionPane.showMessageDialog(null, "Verification successful", "Verification Status", JOptionPane.INFORMATION_MESSAGE);
+                    step2.setVisible(false);
+                    passwordLabel.setVisible(true);
+                    newPassword.setVisible(true);
+                    confirmationLabel.setVisible(true);
+                    confirmedNewPasswd.setVisible(true);
+                    step3.setVisible(true);
+                }else{
+                JOptionPane.showMessageDialog(null, "Answer isn't correct", "Error", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }else JOptionPane.showMessageDialog(null, "You must answer the security question", "Error", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        step3.addActionListener(e -> {
+            if(!newPassword.getText().isEmpty() && !confirmedNewPasswd.getText().isEmpty()){
+                if(newPassword.getText().equals(confirmedNewPasswd.getText())){
+                    boolean successful = database.resetPassword(emailField.getText(), newPassword.getText());
+                    if(successful){
+                        JOptionPane.showMessageDialog(null, "Password was changed successfully", "Password Status", JOptionPane.INFORMATION_MESSAGE);
+                        cardLayout.show(mainPanel, "Sign In");
+                    }else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
+                }else JOptionPane.showMessageDialog(null, "Passwords do not match", "Error", JOptionPane.INFORMATION_MESSAGE);
+            }else JOptionPane.showMessageDialog(null, "You must create a new password", "Error", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        
+
+        
         panel.add(insidePanel);
         return panel;
     }
-
 }
