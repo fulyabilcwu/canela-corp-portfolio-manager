@@ -93,8 +93,7 @@ public class DatabaseManager {
 
     public String getSecurityQuestion(String email) {
 
-        String query =
-                "SELECT security_question FROM users WHERE email = ?";
+        String query = "SELECT security_question FROM users WHERE email = ?";
 
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
