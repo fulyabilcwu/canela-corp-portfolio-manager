@@ -1,10 +1,11 @@
-public class Main {
+import javax.swing.SwingUtilities;
 
-    /**
-     * 
-     * @param args
-     */
+/**
+ * Entry point for the Canela Corp Portfolio Manager application.
+ * Launches the GUI on the Swing Event Dispatch Thread.
+ */
+public class Main {
     public static void main(String[] args) {
-        new GUI();
+        SwingUtilities.invokeLater(() -> new GUI());
     }
 }
