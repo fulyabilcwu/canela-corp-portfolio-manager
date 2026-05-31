@@ -10,6 +10,10 @@ public class DatabaseManager {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
+    /**
+     * 
+     * @return
+     */
     public static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -30,44 +34,17 @@ public class DatabaseManager {
         }
     }
 
-    /** 
-     * thinking to change this and make it for portfolio builder rather than user creation 
-     * Cause when a user signs up, only name, email, and password are gathered.
-     * then, when building portfolio, the user is prompted to enter info such as
-     * age, income, etc..
-     * 
-     * should the risk tolerance be an input or should it be generated later?
-     * */
-    // public static boolean createUser(String name, String email, String password, int age,
-    //                                  double income, String riskTolerance, double netWorth) {
-
-    //     String sql = "INSERT INTO Users (name, email, password, age, income, risk_tolerance, net_worth) "
-    //                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-    //     try (Connection connection = getConnection();
-    //          PreparedStatement statement = connection.prepareStatement(sql)) {
-
-    //         statement.setString(1, name);
-    //         statement.setString(2, email);
-    //         statement.setString(3, password);
-    //         statement.setInt(4, age);
-    //         statement.setDouble(5, income);
-    //         statement.setString(6, riskTolerance);
-    //         statement.setDouble(7, netWorth);
-
-    //         statement.executeUpdate();
-    //         return true;
-
-    //     } catch (SQLException e) {
-    //         System.out.println("Could not create user.");
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
-
     // this is for the sign-up interface
+    /**
+     * 
+     * @param name
+     * @param email
+     * @param password
+     * @param question
+     * @param answer
+     * @return
+     */
     public static boolean initiateUser(String name, String email, String password, String question, String answer) {
-
         String sql = "INSERT INTO Users (name, email, password, security_question, security_answer) "
                    + "VALUES (?, ?, ?, ?, ?)";
 
@@ -91,8 +68,12 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * 
+     * @param email
+     * @return
+     */
     public String getSecurityQuestion(String email) {
-
         String query = "SELECT security_question FROM users WHERE email = ?";
 
         try (Connection connection = getConnection();
@@ -108,35 +89,33 @@ public class DatabaseManager {
             }
 
             connection.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
+    /**
+     * 
+     * @param email
+     * @param answer
+     * @return
+     */
     public boolean verifySecurityQuestion(String email, String answer) {
-
         String query = "SELECT security_answer FROM users WHERE email = ?";
 
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
 
-
             statement.setString(1, email);
-
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-
-            String storedAnswer = result.getString("security_answer");
-
-            return storedAnswer.equalsIgnoreCase(answer.trim());
-        }
+                String storedAnswer = result.getString("security_answer");
+                return storedAnswer.equalsIgnoreCase(answer.trim());
+            }
 
             connection.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,17 +123,20 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * 
+     * @param email
+     * @param password
+     * @return
+     */
     public boolean resetPassword(String email, String password) {
-
         String query = "UPDATE users SET password = ? where email = ?;";
 
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
 
-
             statement.setString(1, password);
             statement.setString(2, email);
-
 
             statement.executeUpdate();
             return true;
@@ -166,8 +148,13 @@ public class DatabaseManager {
     }
 
 
+    /**
+     * 
+     * @param email
+     * @param password
+     * @return
+     */
     public static boolean loginUser(String email, String password) {
-
         String sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
 
         try (Connection connection = getConnection();
@@ -187,9 +174,15 @@ public class DatabaseManager {
         }
     }
 
-    public static boolean savePortfolio(int userId, String portfolioName,
-                                        double totalValue, String riskLevel) {
-
+    /**
+     * 
+     * @param userId
+     * @param portfolioName
+     * @param totalValue
+     * @param riskLevel
+     * @return
+     */
+    public static boolean savePortfolio(int userId, String portfolioName, double totalValue, String riskLevel) {
         String sql = "INSERT INTO Portfolios (user_id, portfolio_name, total_value, risk_level) "
                    + "VALUES (?, ?, ?, ?)";
 
@@ -211,9 +204,15 @@ public class DatabaseManager {
         }
     }
 
-    public static boolean addAsset(int portfolioId, String assetType,
-                                   double allocationPercentage, double amount) {
-
+    /**
+     * 
+     * @param portfolioId
+     * @param assetType
+     * @param allocationPercentage
+     * @param amount
+     * @return
+     */
+    public static boolean addAsset(int portfolioId, String assetType, double allocationPercentage, double amount) {
         String sql = "INSERT INTO Assets (portfolio_id, asset_type, allocation_percentage, amount) "
                    + "VALUES (?, ?, ?, ?)";
 
@@ -235,12 +234,19 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * 
+     * @param age
+     * @param income
+     * @param net_worth
+     * @param email
+     * @return
+     */
     public static boolean generatePortfolio(int age, double income, double net_worth, String email){
         String query = "UPDATE users SET age = ?, income = ?, net_worth = ? where email = ?;";
 
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
-
 
             statement.setInt(1, age);
             statement.setDouble(2, income);
@@ -256,14 +262,25 @@ public class DatabaseManager {
         return false;
     }
 
+    /**
+     * 
+     * @return
+     */
     public static boolean setAsset(/** */){
         return false;
     }
 
-    public static boolean saveAnalysis(int portfolioId, double estimatedValue,
-                                       double projectedGrowth, int simulationYear,
-                                       double bestCase, double worstCase) {
-
+    /**
+     * 
+     * @param portfolioId
+     * @param estimatedValue
+     * @param projectedGrowth
+     * @param simulationYear
+     * @param bestCase
+     * @param worstCase
+     * @return
+     */
+    public static boolean saveAnalysis(int portfolioId, double estimatedValue, double projectedGrowth, int simulationYear, double bestCase, double worstCase) {
         String sql = "INSERT INTO PortfolioAnalyzer "
                    + "(portfolio_id, estimated_value, projected_growth, simulation_year, best_case, worst_case) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";

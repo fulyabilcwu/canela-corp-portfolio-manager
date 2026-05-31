@@ -30,9 +30,6 @@ public class GUI extends JFrame{
         mainPanel.add(moteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
 
-
-
-
         add(mainPanel);
         setVisible(true);
 
@@ -255,8 +252,8 @@ public class GUI extends JFrame{
                     String passwd = passField.getText();
                     String name = fNameF.getText();
                     if(!mNameF.getText().trim().isEmpty()) name = name + " " + mNameF.getText();
-                    name = name + " " + lNameF.getText();
-                    String security_question = "";
+                        name = name + " " + lNameF.getText();
+                        String security_question = "";
                     if(createYourOwn.isSelected()) security_question = question.getText();
                     else security_question = (String) questionList.getSelectedItem();
                     boolean accountCreationSuccess = database.initiateUser(name, emailField.getText(), passwd, security_question, answer.getText());
@@ -295,7 +292,6 @@ public class GUI extends JFrame{
         layout.gridx = 0;
         layout.gridy = 19;
         layout.gridwidth = 2;
-
         insidePanel.add(bottom, layout);
 
         panel.add(insidePanel);
@@ -561,9 +557,6 @@ public class GUI extends JFrame{
             answerField.setVisible(true);
             step1.setVisible(false);
             step2.setVisible(true);
-
-            
-            //cardLayout.show(mainPanel, "Verify Security Question");
         });
 
         step2.addActionListener(e -> {
@@ -594,9 +587,6 @@ public class GUI extends JFrame{
                 }else JOptionPane.showMessageDialog(null, "Passwords do not match", "Error", JOptionPane.INFORMATION_MESSAGE);
             }else JOptionPane.showMessageDialog(null, "You must create a new password", "Error", JOptionPane.INFORMATION_MESSAGE);
         });
-
-        
-
         
         panel.add(insidePanel);
         return panel;
