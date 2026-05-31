@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import DatabaseManager.portfolioMan;
+import DatabaseManager.DatabaseManager;
 
 import java.awt.Color;
 import javax.swing.JButton;
@@ -91,17 +91,9 @@ public class portfolioBuilder extends JFrame {
 				else 
 				{
 					res = portfolioName + "'s Conservative Portfolio";
-				}
-				
-				portfolioMan maker = new portfolioMan();
-
-				int userId = maker.insertUser( portfolioName, Integer.parseInt(age), Double.parseDouble(income),  risk, Double.parseDouble(netWorth));
-
-				int portfolioId =  maker.insertPortfolio( userId,  res,   risk,  Double.parseDouble(netWorth));
+				}				
 
 				portfolioDashboard dash =  new portfolioDashboard();
-
-				dash.setPortfolioId(portfolioId);
 				
 				dash.setPortfolioText(res);
 				dash.setAgeText(age);

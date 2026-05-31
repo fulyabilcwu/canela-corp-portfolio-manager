@@ -8,7 +8,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import DatabaseManager.portfolioMan;
+import DatabaseManager.DatabaseManager;
+
 
 import java.awt.Color;
 import javax.swing.JLabel;
@@ -150,13 +151,13 @@ public class portfolioDashboard extends JFrame {
 				
 				 try
 			        {
-			            String assetType =assetComboBox.getSelectedItem().toString();
+			            String assetType = assetComboBox.getSelectedItem().toString();
 
 			            int pct = Integer.parseInt(pctField.getText());
 
 			            if(pct <= 0)
 			            {
-			                JOptionPane.showMessageDialog( null, "Percentage must be greater than 0.");
+			                JOptionPane.showMessageDialog(null, "Percentage must be greater than 0.");
 
 			                return;
 			            }
@@ -168,14 +169,10 @@ public class portfolioDashboard extends JFrame {
 			                return;
 			            }
 
-			            Asset asset = new Asset(  0, currentPortfolioID, assetType, assetType, pct, 0);
+			            Asset asset = new Asset(0, currentPortfolioID, assetType, assetType, pct, 0);
 
 			            assets.add(asset);
 			            piechart.repaint();
-
-			            portfolioMan add = new portfolioMan();
-
-			            add.addAsset( currentPortfolioID,assetType, pct);
 
 			            assetArea.append( assetType + " - " + pct + "%\n");
 
@@ -201,6 +198,29 @@ public class portfolioDashboard extends JFrame {
 		assetArea.setEditable(false);
 
 		scrollPane.setViewportView(assetArea);
+		
+		JButton btnSaveAssets = new JButton("Save Assets");
+		btnSaveAssets.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				for(Asset asset : assets)
+		        {
+		            DatabaseManager.addAsset(
+		                    currentPortfolioID,
+		                    asset.getAssetType(),
+		                    (double)asset.getAllocationPercentage(),
+		                    (double)asset.getAmount());
+		        }
+
+		        JOptionPane.showMessageDialog(null, "Assets saved successfully!");
+		        assets.clear();
+		        assetArea.setText("");
+		        
+		        piechart.repaint();
+		    }
+		});
+		btnSaveAssets.setBounds(66, 405, 124, 23);
+		contentPane.add(btnSaveAssets);
 
 	}
 	
