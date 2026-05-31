@@ -2,7 +2,6 @@
 *.class
 
 # JFreeChart library JARs (keep locally, don't commit)
-libs/
 
 # macOS junk
 .DS_Store
