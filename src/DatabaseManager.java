@@ -8,7 +8,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp";
     private static final String USER = "root";
-    private static final String PASSWORD = "your_my_sql_password";
+    private static final String PASSWORD = "RootUser420";
 
     public static Connection getConnection() {
         try {
@@ -30,6 +30,14 @@ public class DatabaseManager {
         }
     }
 
+    /** 
+     * thinking to change this and make it for portfolio builder rather than user creation 
+     * Cause when a user signs up, only name, email, and password are gathered.
+     * then, when building portfolio, the user is prompted to enter info such as
+     * age, income, etc..
+     * 
+     * should the risk tolerance be an input or should it be generated later?
+     * */
     public static boolean createUser(String name, String email, String password, int age,
                                      double income, String riskTolerance, double netWorth) {
 
@@ -56,6 +64,33 @@ public class DatabaseManager {
             return false;
         }
     }
+
+    // this is for the sign-up interface
+    public static boolean initiateUser(String name, String email, String password, String question, String answer) {
+
+        String sql = "INSERT INTO Users (name, email, password, security_question, security_answer) "
+                   + "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, name);
+            statement.setString(2, email);
+            statement.setString(3, password);
+            statement.setString(4, question);
+            statement.setString(5, answer);
+
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not create user.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public static boolean loginUser(String email, String password) {
 
