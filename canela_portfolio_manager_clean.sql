@@ -15,7 +15,6 @@ CREATE TABLE Users (
     security_answer VARCHAR(55),
     age INT,
     income DECIMAL(15,2),
-    risk_tolerance VARCHAR(20),
     net_worth DECIMAL(15,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
