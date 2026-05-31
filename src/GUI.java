@@ -241,13 +241,13 @@ public class GUI extends JFrame{
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
         ));
         layout.gridx = 0;
-        layout.gridy = 20;
+        layout.gridy = 19;
         layout.insets = new Insets(25, 10, 10, 10);
         insidePanel.add(createUserAccount, layout); 
         createUserAccount.addActionListener(e -> {
             String chosenQ = (String) questionList.getSelectedItem();
             if(!fNameF.getText().isEmpty() && !lNameF.getText().isEmpty() && !passField.getText().isEmpty() && !confirmedNewPasswd.getText().isEmpty() 
-                && !emailField.getText().isEmpty() && (chosenQ != "" && !answer.getText().isEmpty() || chosenQ != "" && !answer.getText().isEmpty() && !question.getText().isEmpty())){
+                && !emailField.getText().isEmpty() && (chosenQ != "" && !answer.getText().isEmpty() || chosenQ == "" && !answer.getText().isEmpty() && !question.getText().isEmpty())){
                 if(passField.getText().equals(confirmedNewPasswd.getText())){
                     String passwd = passField.getText();
                     String name = fNameF.getText();
@@ -259,13 +259,8 @@ public class GUI extends JFrame{
                     boolean accountCreationSuccess = database.initiateUser(name, emailField.getText(), passwd, security_question, answer.getText());
                     if(accountCreationSuccess){
                         JOptionPane.showMessageDialog(null, "Account creation successful!", "Account Status", JOptionPane.INFORMATION_MESSAGE);
-                        fNameF.setText("");
-                        mNameF.setText("");
-                        lNameF.setText("");
-                        emailField.setText("");
-                        passField.setText("");
-                        confirmedNewPasswd.setText("");
-
+                        cardLayout.show(mainPanel, "Sign In");;
+                        refreshPanel("Sign Up");
                     }else JOptionPane.showMessageDialog(null, "Account creation Failed!", "Account Status", JOptionPane.INFORMATION_MESSAGE);
                 }else JOptionPane.showMessageDialog(null, "Passwords do not match\nPlease try again", "Account Status", JOptionPane.INFORMATION_MESSAGE);
             }else JOptionPane.showMessageDialog(null, "All required fields must be filled\nPlease try again", "Account Status", JOptionPane.INFORMATION_MESSAGE);       
@@ -285,12 +280,13 @@ public class GUI extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e){
                 cardLayout.show(mainPanel, "Sign In");
+                refreshPanel("Sign Up");
             }
         });
         bottom.add(signIn);
 
         layout.gridx = 0;
-        layout.gridy = 19;
+        layout.gridy = 20;
         layout.gridwidth = 2;
         insidePanel.add(bottom, layout);
 
@@ -386,6 +382,7 @@ public class GUI extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e){
                 cardLayout.show(mainPanel, "Forgot Password");
+                refreshPanel("Sign In");
             }
         });
         layout.gridx = 0;
@@ -397,13 +394,17 @@ public class GUI extends JFrame{
         signUpButton.addActionListener(e -> {
 
             cardLayout.show(mainPanel, "Sign Up");
+            refreshPanel("Sign In");
         });
 
         loginButton.addActionListener(e -> {
             String emailInput = emailField.getText();
             String passInput = passField.getText();
             boolean correctCredentials = database.loginUser(emailInput, passInput);
-            if(correctCredentials) cardLayout.show(mainPanel, "Dashboard");
+            if(correctCredentials){
+                cardLayout.show(mainPanel, "Dashboard");
+                refreshPanel("Sign In");
+            } 
             else{
                 JOptionPane.showMessageDialog(null, "The credentials were not recognized\nPlease try again!", "Failed", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -517,6 +518,13 @@ public class GUI extends JFrame{
         insidePanel.add(confirmedNewPasswd, layout);
         confirmedNewPasswd.setVisible(false);
 
+        JButton back = new JButton("Back");
+        back.setBackground(new Color(60, 60, 60));
+        back.setForeground(Color.WHITE);
+        back.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+
         JButton step1 = new JButton("Continue");
         step1.setBackground(new Color(60, 60, 60));
         step1.setForeground(Color.WHITE);
@@ -526,6 +534,10 @@ public class GUI extends JFrame{
         layout.gridx = 0;
         layout.gridy = 4;
         insidePanel.add(step1, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 5;
+        insidePanel.add(back, layout);
 
         JButton step2 = new JButton("Continue");
         step2.setBackground(new Color(60, 60, 60));
@@ -550,13 +562,19 @@ public class GUI extends JFrame{
         step3.setVisible(false);
 
         step1.addActionListener(e -> {
-            questionField.setText(database.getSecurityQuestion(emailField.getText()));
-            question.setVisible(true);
-            questionField.setVisible(true);
-            answer.setVisible(true);
-            answerField.setVisible(true);
-            step1.setVisible(false);
-            step2.setVisible(true);
+            if(!emailField.getText().isEmpty()){
+                questionField.setText(database.getSecurityQuestion(emailField.getText()));
+                question.setVisible(true);
+                questionField.setVisible(true);
+                answer.setVisible(true);
+                answerField.setVisible(true);
+                step1.setVisible(false);
+                step2.setVisible(true);
+
+                layout.gridx = 0;
+                layout.gridy = 9;
+                insidePanel.add(back, layout);
+            }else JOptionPane.showMessageDialog(null, "You must enter an email address", "Error", JOptionPane.INFORMATION_MESSAGE);
         });
 
         step2.addActionListener(e -> {
@@ -570,6 +588,10 @@ public class GUI extends JFrame{
                     confirmationLabel.setVisible(true);
                     confirmedNewPasswd.setVisible(true);
                     step3.setVisible(true);
+
+                    layout.gridx = 0;
+                    layout.gridy = 13;
+                    insidePanel.add(back, layout);
                 }else{
                 JOptionPane.showMessageDialog(null, "Answer isn't correct", "Error", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -583,12 +605,58 @@ public class GUI extends JFrame{
                     if(successful){
                         JOptionPane.showMessageDialog(null, "Password was changed successfully", "Password Status", JOptionPane.INFORMATION_MESSAGE);
                         cardLayout.show(mainPanel, "Sign In");
+                        refreshPanel("Forgot Password");
                     }else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
                 }else JOptionPane.showMessageDialog(null, "Passwords do not match", "Error", JOptionPane.INFORMATION_MESSAGE);
             }else JOptionPane.showMessageDialog(null, "You must create a new password", "Error", JOptionPane.INFORMATION_MESSAGE);
         });
-        
+
+        back.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Sign In");
+            refreshPanel("Forgot Password");
+        });
+
         panel.add(insidePanel);
         return panel;
+    }
+
+    private void refreshPanel(String panel) {
+        mainPanel.remove(getPanel(panel));
+
+        mainPanel.add(getPanel(panel), panel);
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    private JPanel getPanel(String panelName) {
+
+        switch (panelName) {
+            case "Sign In":
+                return loginPanel();
+
+            case "Sign Up":
+                return signUpPanel();
+
+            case "Forgot Password":
+                return forgotPasswordPanel();
+
+            case "Portfolio Builder":
+                return portfolioBuilderPanel();
+
+            case "Dashboard":
+                return dashboardPanel();
+            
+            case "Analysis":
+                return analysisPanel();
+
+            case "Monte Carlo":
+                return moteCarloPanel();
+
+            default:
+                throw new IllegalArgumentException(
+                    "Unknown panel: " + panelName
+                );
+        }
     }
 }

@@ -155,7 +155,7 @@ public class DatabaseManager {
      * @return
      */
     public static boolean loginUser(String email, String password) {
-        String sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
+        String sql = "SELECT * FROM Users WHERE email = ? AND password = ?;";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
