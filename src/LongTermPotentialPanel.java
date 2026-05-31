@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,10 @@ import java.util.List;
  * Each tier displays the projected portfolio value for that timeframe.
  * The pyramid widens at the bottom to visually emphasize long-term growth.
  *
+ * Phase 3: portfolios are loaded live from the portfolioapp MySQL database
+ * via DatabaseManager. Selecting a portfolio from the dropdown re-renders
+ * the pyramid with that portfolio's projections.
+ *
  * Uses LongTermProjector under the hood (deterministic compound growth).
  */
 public class LongTermPotentialPanel extends JPanel {
@@ -19,23 +25,23 @@ public class LongTermPotentialPanel extends JPanel {
     private static final Color TEXT_COLOR   = new Color(40, 30, 30);
     private static final Color TIER_COLOR   = new Color(180, 70, 65);
 
-    // Fake test data - TODO Phase 3: load real portfolio from DB
-    private Portfolio fakePortfolio;
-    private List<Asset> fakeAssets;
+    // Phase 3: live portfolio + assets from MySQL
+    private JComboBox<Portfolio> portfolioCombo;
+    private Portfolio currentPortfolio;
+    private List<Asset> currentAssets = new ArrayList<>();
+
+    private JLabel subtitle;
+    private PyramidComponent pyramid;
 
     public LongTermPotentialPanel() {
         setLayout(new BorderLayout());
         setBackground(BODY_COLOR);
 
-        // Set up test data
-        fakePortfolio = new Portfolio(1, 1, "Test Portfolio", 10000.0, "MEDIUM");
-        fakeAssets = new ArrayList<>();
-        fakeAssets.add(new Asset(1, 1, "S&P 500 ETF",     "STOCK", 60.0, 6000.0));
-        fakeAssets.add(new Asset(2, 1, "Treasury Bonds",  "BOND",  30.0, 3000.0));
-        fakeAssets.add(new Asset(3, 1, "Savings Account", "CASH",  10.0, 1000.0));
-
         add(buildHeader(), BorderLayout.NORTH);
         add(buildBody(), BorderLayout.CENTER);
+
+        // Load portfolios from MySQL and auto-select the first
+        loadPortfoliosFromDatabase();
     }
 
     private JPanel buildHeader() {
@@ -48,7 +54,7 @@ public class LongTermPotentialPanel extends JPanel {
         title.setForeground(TEXT_COLOR);
         header.add(title, BorderLayout.WEST);
 
-        JLabel backLink = new JLabel("← BACK TO PORTFOLIO");
+        JLabel backLink = new JLabel("\u2190 BACK TO PORTFOLIO");
         backLink.setFont(new Font("Arial", Font.BOLD, 12));
         backLink.setForeground(TEXT_COLOR);
         backLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -62,17 +68,102 @@ public class LongTermPotentialPanel extends JPanel {
         body.setBackground(BODY_COLOR);
         body.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // Subtitle row
-        JLabel subtitle = new JLabel(
-            "BASED OFF: " + fakePortfolio.getPortfolioName().toUpperCase());
+        // --- Top section: portfolio selector + subtitle ---
+        JPanel topSection = new JPanel();
+        topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
+        topSection.setBackground(BODY_COLOR);
+
+        // Portfolio selector row
+        JPanel portfolioRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        portfolioRow.setBackground(BODY_COLOR);
+        JLabel portfolioLabel = new JLabel("Portfolio:");
+        portfolioLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        portfolioLabel.setForeground(TEXT_COLOR);
+        portfolioRow.add(portfolioLabel);
+
+        portfolioCombo = new JComboBox<>();
+        portfolioCombo.setPreferredSize(new Dimension(300, 28));
+        portfolioCombo.setFont(new Font("Arial", Font.PLAIN, 13));
+        portfolioCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel l = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+                l.setFont(new Font("Arial", Font.PLAIN, 13));
+                if (value instanceof Portfolio) {
+                    Portfolio p = (Portfolio) value;
+                    l.setText(p.getPortfolioName()
+                        + "  ($" + String.format("%,.2f", p.getTotalValue())
+                        + ", " + p.getRiskLevel() + ")");
+                }
+                return l;
+            }
+        });
+        portfolioCombo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onPortfolioSelected();
+            }
+        });
+        portfolioRow.add(portfolioCombo);
+        portfolioRow.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topSection.add(portfolioRow);
+        topSection.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Subtitle (updates when portfolio changes)
+        subtitle = new JLabel("BASED OFF: --", SwingConstants.CENTER);
         subtitle.setFont(new Font("Arial", Font.BOLD, 13));
         subtitle.setForeground(TEXT_COLOR);
-        body.add(subtitle, BorderLayout.NORTH);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topSection.add(subtitle);
+
+        body.add(topSection, BorderLayout.NORTH);
 
         // Pyramid component (custom drawn)
-        body.add(new PyramidComponent(), BorderLayout.CENTER);
+        pyramid = new PyramidComponent();
+        body.add(pyramid, BorderLayout.CENTER);
 
         return body;
+    }
+
+    /**
+     * Pulls all portfolios from MySQL and populates the dropdown.
+     * Auto-selecting the first item triggers onPortfolioSelected().
+     */
+    private void loadPortfoliosFromDatabase() {
+        List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
+        if (portfolios.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No portfolios found in the database.\n"
+                + "Make sure MySQL is running and portfolioapp is loaded.",
+                "Database Empty",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        for (Portfolio p : portfolios) {
+            portfolioCombo.addItem(p);
+        }
+    }
+
+    /**
+     * Fires whenever the user picks a portfolio. Caches the selection
+     * and its assets, updates the subtitle, and repaints the pyramid.
+     */
+    private void onPortfolioSelected() {
+        Portfolio selected = (Portfolio) portfolioCombo.getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        currentPortfolio = selected;
+        currentAssets = DatabaseManager.getAssetsByPortfolioId(
+            selected.getPortfolio_ID());
+
+        subtitle.setText("BASED OFF: "
+            + selected.getPortfolioName().toUpperCase());
+        if (pyramid != null) {
+            pyramid.repaint();
+        }
     }
 
     /**
@@ -98,27 +189,39 @@ public class LongTermPotentialPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            // Run the projection for each tier
+            // Empty state: no portfolio loaded yet
+            if (currentPortfolio == null
+                    || currentAssets == null
+                    || currentAssets.isEmpty()) {
+                g2.setColor(TEXT_COLOR);
+                g2.setFont(new Font("Arial", Font.PLAIN, 14));
+                String msg = "Select a portfolio to see projections";
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(msg, (w - fm.stringWidth(msg)) / 2, h / 2);
+                return;
+            }
+
+            // Run the projection for each tier on the live portfolio
             LongTermProjector projector = new LongTermProjector();
-            double v10 = projector.projectFinalValue(fakePortfolio, fakeAssets, 10);
-            double v25 = projector.projectFinalValue(fakePortfolio, fakeAssets, 25);
-            double v50 = projector.projectFinalValue(fakePortfolio, fakeAssets, 50);
-            double start = fakePortfolio.getTotalValue();
+            double v10 = projector.projectFinalValue(currentPortfolio, currentAssets, 10);
+            double v25 = projector.projectFinalValue(currentPortfolio, currentAssets, 25);
+            double v50 = projector.projectFinalValue(currentPortfolio, currentAssets, 50);
+            double start = currentPortfolio.getTotalValue();
 
             // Pyramid geometry
             int centerX  = w / 2;
             int topY     = 40;
             int bottomY  = h - 40;
             int tierH    = (bottomY - topY) / 3;
-            int maxWidth = (int)(w * 0.55);    // bottom tier width
-            int minWidth = (int)(w * 0.15);    // top tier width
+            int maxWidth = (int)(w * 0.55);   // bottom tier width
+            int minWidth = (int)(w * 0.15);   // top tier width
 
             // Draw 3 tiers from top to bottom
-            drawTier(g2, centerX, topY,           tierH, minWidth,
+            drawTier(g2, centerX, topY,             tierH, minWidth,
                      (minWidth + maxWidth) / 3,
                      "10 YEARS",  v10, start);
 
-            drawTier(g2, centerX, topY + tierH,   tierH,
+            drawTier(g2, centerX, topY + tierH,     tierH,
                      (minWidth + maxWidth) / 3,
                      (2 * (minWidth + maxWidth)) / 3,
                      "25 YEARS",  v25, start);
@@ -137,7 +240,6 @@ public class LongTermPotentialPanel extends JPanel {
         private void drawTier(Graphics2D g2, int centerX, int y, int height,
                               int topW, int botW,
                               String label, double value, double start) {
-
             // The tier shape: trapezoid (top narrower than bottom)
             int[] xs = {
                 centerX - topW/2, centerX + topW/2,
