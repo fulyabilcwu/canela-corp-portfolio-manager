@@ -11,7 +11,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp";
     private static final String USER = "root";
-    private static final String PASSWORD = "RootUser420";
+    private static final String PASSWORD = "ROOTPASSWORDS";
 
     /**
      * 
@@ -479,6 +479,65 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public static int getLatestPortfolioId(int userId)
+    {
+        String sql =
+            "SELECT portfolio_id " +
+            "FROM Portfolios " +
+            "WHERE user_id = ? " +
+            "ORDER BY portfolio_id DESC " +
+            "LIMIT 1";
+
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement =
+                    connection.prepareStatement(sql))
+        {
+            statement.setInt(1, userId);
+
+            ResultSet rs =
+                    statement.executeQuery();
+
+            if(rs.next())
+            {
+                return rs.getInt("portfolio_id");
+            }
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+    
+    public static int getUserIdByEmail(String email)
+    {
+        String sql =
+            "SELECT user_id FROM Users WHERE email = ?";
+
+        try(
+            Connection conn = getConnection();
+            PreparedStatement stmt =
+                conn.prepareStatement(sql))
+        {
+            stmt.setString(1, email);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next())
+            {
+                return rs.getInt("user_id");
+            }
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return -1;
     }
 
 

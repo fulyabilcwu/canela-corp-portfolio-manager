@@ -33,6 +33,7 @@ public class portfolioBuilder extends JFrame {
 	private JLabel lblPortfolioName;
 	private JLabel lblRisk;
 	private JLabel lblNewLabel;
+	private String currentUserEmail;
 
 	/**
 	 * Launch the application.
@@ -54,6 +55,9 @@ public class portfolioBuilder extends JFrame {
 	 * Create the frame.
 	 */
 	public portfolioBuilder() {
+		
+		currentUserEmail = "john@example.com";
+		
 		setTitle("Portfolio Builder");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -91,9 +95,24 @@ public class portfolioBuilder extends JFrame {
 				else 
 				{
 					res = portfolioName + "'s Conservative Portfolio";
-				}				
+				}	
+				
+				int userId = DatabaseManager.getUserIdByEmail(currentUserEmail);
 
-				portfolioDashboard dash =  new portfolioDashboard();
+				DatabaseManager.addPortfolio(
+				        userId,
+				        res,
+				        Double.parseDouble(netWorth),
+				        risk);
+
+				int portfolioId = DatabaseManager.getLatestPortfolioId(userId);
+
+
+				portfolioDashboard dash = new portfolioDashboard();
+
+				dash.setPortfolioId(portfolioId);
+
+				
 				
 				dash.setPortfolioText(res);
 				dash.setAgeText(age);
@@ -173,6 +192,14 @@ public class portfolioBuilder extends JFrame {
 		riskComboBox.setMaximumRowCount(3);
 		riskComboBox.setBounds(322, 103, 86, 22);
 		contentPane.add(riskComboBox);
+	}
+	
+	public portfolioBuilder(String email)
+	{
+		this();
+		
+	    this.currentUserEmail = email;
 
+	    
 	}
 }
