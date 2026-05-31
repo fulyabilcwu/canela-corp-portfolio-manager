@@ -8,6 +8,17 @@ public class User {
     private String riskTolerance;
     private double netWorth;
 
+    /**
+     * user constructor mainly for portfolio Builder
+     * @param user_ID
+     * @param name
+     * @param email
+     * @param password
+     * @param age
+     * @param income
+     * @param riskTolerance
+     * @param netWorth
+     */
     public User(
         int user_ID, 
         String name, 
@@ -25,6 +36,20 @@ public class User {
             this.income = income;
             this.riskTolerance = riskTolerance;
             this.netWorth = netWorth;
+    }
+
+    /**
+     * user constructor for sign-up page
+     * where the user first creates their account
+     * @param user_ID
+     * @param name
+     * @param email
+     * @param password
+     */
+    public User(String name, String email, String password){
+        this.name = name;
+        this.email = email;
+        this.password = password;
     }
 
     public double getNetWorth() {
