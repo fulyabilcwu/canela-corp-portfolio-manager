@@ -198,11 +198,11 @@ public class DatabaseManager {
 
         if (!securityQ.isEmpty()) {
             sql.append("security_question = ?, ");
-            values.add(Double.parseDouble(securityQ));
+            values.add(securityQ);
         }
         if (!securityA.isEmpty()) {
             sql.append("security_answer = ?, ");
-            values.add(Double.parseDouble(securityA));
+            values.add(securityA);
         }
 
         if (values.isEmpty()) {
@@ -218,8 +218,8 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-            for (int i = 1; i <= values.size(); i++) {
-                statement.setObject(i, values.get(i));
+            for (int i = 0; i < values.size(); i++) {
+                statement.setObject(i + 1, values.get(i));
             }
 
             statement.executeUpdate();
@@ -345,7 +345,7 @@ public class DatabaseManager {
     }
 
     public static boolean addAsset(int portfolio_id, String asset_type, Double allocation_percentage, Double amount) {
-        String query = "INSERT INTO users (portfolio_id, asset_type, allocation_percentage, amount) VALUES (?, ?, ?, ?);";
+        String query = "INSERT INTO assets (portfolio_id, asset_type, allocation_percentage, amount) VALUES (?, ?, ?, ?);";
 
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -355,7 +355,7 @@ public class DatabaseManager {
             statement.setDouble(3, allocation_percentage);
             statement.setDouble(4, amount);
 
-            statement.executeQuery();
+            statement.executeUpdate();
             return true;
 
         } catch (Exception e) {
@@ -396,8 +396,8 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-            for (int i = 1; i <= values.size(); i++) {
-                statement.setObject(i, values.get(i));
+            for (int i = 0; i < values.size(); i++) {
+                statement.setObject(i + 1, values.get(i));
             }
 
             statement.executeUpdate();
