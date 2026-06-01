@@ -44,7 +44,7 @@ public class portfolioDashboard extends JFrame {
     private ArrayList<Asset> assets;
     private PiechartPanel piechart;
 
-    // Shared style constants — mirrors portfolioBuilder
+    
     private static final Color BODY_COLOR   = Color.DARK_GRAY;
     private static final Color HEADER_COLOR = Color.BLACK;
     private static final Color TEXT_COLOR   = Color.WHITE;
@@ -52,9 +52,7 @@ public class portfolioDashboard extends JFrame {
     private static final Font  FIELD_FONT   = new Font("Tahoma", Font.PLAIN, 25);
     private static final Font  BTN_FONT     = new Font("Tahoma", Font.PLAIN, 20);
 
-    // -------------------------------------------------------------------------
-    // Entry point
-    // -------------------------------------------------------------------------
+    
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -69,9 +67,7 @@ public class portfolioDashboard extends JFrame {
         });
     }
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
+ 
 
     public portfolioDashboard() {
         assets = new ArrayList<>();
@@ -90,9 +86,7 @@ public class portfolioDashboard extends JFrame {
         contentPane.add(buildBody(),   BorderLayout.CENTER);
     }
 
-    // -------------------------------------------------------------------------
-    // Header — mirrors portfolioBuilder's lblNewLabel style
-    // -------------------------------------------------------------------------
+    
 
     private JLabel buildHeader() {
         lblPortfolioName = new JLabel("PORTFOLIO DASHBOARD");
@@ -105,9 +99,7 @@ public class portfolioDashboard extends JFrame {
         return lblPortfolioName;
     }
 
-    // -------------------------------------------------------------------------
-    // Body — GridBagLayout centered wrapper, same as portfolioBuilder
-    // -------------------------------------------------------------------------
+
 
     private JPanel buildBody() {
         JPanel centerWrapper = new JPanel(new GridBagLayout());
@@ -122,7 +114,7 @@ public class portfolioDashboard extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill   = GridBagConstraints.NONE;
 
-        // Row 0 — Age | Income
+        
         lblAge = makeLabel("Age:");
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(lblAge, gbc);
@@ -131,7 +123,7 @@ public class portfolioDashboard extends JFrame {
         gbc.gridx = 1; gbc.gridy = 0;
         formPanel.add(lblIncome, gbc);
 
-        // Row 1 — Risk | Net Worth
+        
         lblRisk = makeLabel("Risk Tolerance:");
         gbc.gridx = 0; gbc.gridy = 1;
         formPanel.add(lblRisk, gbc);
@@ -156,7 +148,7 @@ public class portfolioDashboard extends JFrame {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Row 3 — Add Asset controls
+       
         JPanel addRow = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 0));
         addRow.setBackground(BODY_COLOR);
 
@@ -220,7 +212,7 @@ public class portfolioDashboard extends JFrame {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Row 4 — Asset list scroll area
+        
         assetArea = new JTextArea(5, 30);
         assetArea.setEditable(false);
         assetArea.setFont(FIELD_FONT);
@@ -234,7 +226,7 @@ public class portfolioDashboard extends JFrame {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Row 5 — action buttons
+       
         JPanel btnRow = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 20, 0));
         btnRow.setBackground(BODY_COLOR);
 
@@ -295,7 +287,7 @@ public class portfolioDashboard extends JFrame {
         });
         btnRow.add(btnMonteCarlo);
 
-        // Admin button in same row
+        
         btnViewAllPortfolios = new JButton("View All Portfolios");
         btnViewAllPortfolios.setFont(BTN_FONT);
         btnViewAllPortfolios.setVisible(false);
@@ -361,8 +353,10 @@ public class portfolioDashboard extends JFrame {
         gbc.insets = new Insets(20, 15, 20, 15);
         formPanel.add(btnRow, gbc);
 
-        return centerWrapper;
+        return centerWrapper; 
     }
+    
+    JButton btnDelete = new JButton("Delete Asset");
 
     // -------------------------------------------------------------------------
     // Helpers
