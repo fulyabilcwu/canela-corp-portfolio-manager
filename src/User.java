@@ -8,6 +8,7 @@ public class User {
     private double netWorth;
     private String securityQ;
     private String securityA;
+    private String role;
 
     /**
      * user constructor mainly for portfolio Builder
@@ -17,7 +18,6 @@ public class User {
      * @param password
      * @param age
      * @param income
-     * @param riskTolerance
      * @param netWorth
      */
     public User(
@@ -29,7 +29,8 @@ public class User {
         double income, 
         double netWorth,
         String securityQ,
-        String securityA){
+        String securityA,
+        String role){
             this.user_ID = user_ID;
             this.name = name;
             this.email = email;
@@ -39,6 +40,7 @@ public class User {
             this.netWorth = netWorth;
             this.securityQ = securityQ;
             this.securityA = securityA;
+            this.role = role;
     }
 
     /**
@@ -129,20 +131,55 @@ public class User {
         this.securityA = securityA;
     }
 
-    public boolean generatePortfolio(){
-        return DatabaseManager.generatePortfolio(age, income, netWorth, email);
+    public String getRole(){
+        return this.role;
     }
 
-    public boolean savePortfolio(String portfolioName, double totalValue, String riskLevel) {
-        return DatabaseManager.addPortfolio(user_ID, portfolioName, totalValue, riskLevel);
+    public boolean completeAccount(){
+        return DatabaseManager.completeAccount(age, income, netWorth, email);
     }
 
-    public boolean addAsset(int portfolioId, String assetType, double allocationPercentage, double amount) {
-        return DatabaseManager.addAsset(portfolioId, assetType, allocationPercentage, amount);
+    public boolean updateUser(int user_id, String name, String email, String password, Integer age, Double income, 
+        Double netWorth, String securityQ, String securityA){
+        return DatabaseManager.updateUserInfo(user_id, name, email, password, age, income, netWorth, securityQ, securityA);
     }
 
-    public boolean saveAnalysis(int portfolioId, double estimatedValue, double projectedGrowth,
+    public boolean deleteUser(int user_id){
+        return DatabaseManager.deleteUser(user_id);
+    }
+
+    public boolean generatePortfolio(String portfolioName, double totalValue, String riskLevel) {
+        return DatabaseManager.generatePortfolio(user_ID, portfolioName, totalValue, riskLevel);
+    }
+
+    public boolean deletePortfolio(int portfolio_id) {
+        return DatabaseManager.deletePortfolio(portfolio_id);
+    }
+
+    public boolean addAsset(int portfolio_id, String asset_type, Double allocation_percentage, Double amount) {
+        return DatabaseManager.addAsset(portfolio_id, asset_type, allocation_percentage, amount);
+    }
+
+    public boolean updateAsset(int asset_id, String asset_type, Double allocation_percentage, Double amount) {
+        return DatabaseManager.updateAsset(asset_id, asset_type, allocation_percentage, amount);
+    }
+
+    public boolean deleteAsset(int asset_id) {
+        return DatabaseManager.deleteAsset(asset_id);
+    }
+
+    public boolean generateAnalysis(int portfolioId, double estimatedValue, double projectedGrowth,
                                 int simulationYear, double bestCase, double worstCase) {
-        return DatabaseManager.saveAnalysis(portfolioId, estimatedValue, projectedGrowth, simulationYear, bestCase, worstCase);
+        return DatabaseManager.generateAnalysis(portfolioId, estimatedValue, projectedGrowth, simulationYear, bestCase, worstCase);
     }
+
+    public boolean login(String email, String password){
+        return DatabaseManager.loginUser(email, password);
+    }
+
+    public boolean resetPassword(String email, String password){
+        return DatabaseManager.resetPassword(email, password);
+    }
+
+
  }

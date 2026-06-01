@@ -187,11 +187,11 @@ public class DatabaseManagerTest {
         DatabaseManager.initiateUser("Emily Johnson", "emily.johnson@gmail.com", "Portfolio456", "Hobby?", "Reading");
         DatabaseManager.initiateUser("David Wilson", "david.wilson@gmail.com", "MoneyPlan789", "Sport?", "Soccer");
 
-        boolean test1 = DatabaseManager.generatePortfolio(25, 55000.0, 120000.0, "johncar77@gmail.com");
-        boolean test2 = DatabaseManager.generatePortfolio(32, 85000.0, 250000.0, "parsar77@gmail.com");
-        boolean test3 = DatabaseManager.generatePortfolio(40, 95000.0, 400000.0, "miclee44@gmail.com");
-        boolean test4 = DatabaseManager.generatePortfolio(29, 62000.0, 150000.0, "emily.johnson@gmail.com");
-        boolean test5 = DatabaseManager.generatePortfolio(50, 120000.0, 700000.0, "david.wilson@gmail.com");
+        boolean test1 = DatabaseManager.completeAccount(25, 55000.0, 120000.0, "johncar77@gmail.com");
+        boolean test2 = DatabaseManager.completeAccount(32, 85000.0, 250000.0, "parsar77@gmail.com");
+        boolean test3 = DatabaseManager.completeAccount(40, 95000.0, 400000.0, "miclee44@gmail.com");
+        boolean test4 = DatabaseManager.completeAccount(29, 62000.0, 150000.0, "emily.johnson@gmail.com");
+        boolean test5 = DatabaseManager.completeAccount(50, 120000.0, 700000.0, "david.wilson@gmail.com");
 
         assertTrue(test1);
         assertTrue(test2);
@@ -201,36 +201,36 @@ public class DatabaseManagerTest {
     }
 
     @Test
-    public void testAddPortfolio() {
-        boolean test1 = DatabaseManager.addPortfolio(
+    public void testgeneratePortfolio() {
+        boolean test1 = DatabaseManager.generatePortfolio(
                 6,
                 "John Retirement Fund",
                 150000.0,
                 "LOW"
         );
 
-        boolean test2 = DatabaseManager.addPortfolio(
+        boolean test2 = DatabaseManager.generatePortfolio(
                 7,
                 "Sarah Balanced Portfolio",
                 85000.0,
                 "MEDIUM"
         );
 
-        boolean test3 = DatabaseManager.addPortfolio(
+        boolean test3 = DatabaseManager.generatePortfolio(
                 8,
                 "Michael Growth Portfolio",
                 200000.0,
                 "HIGH"
         );
 
-        boolean test4 = DatabaseManager.addPortfolio(
+        boolean test4 = DatabaseManager.generatePortfolio(
                 9,
                 "Emily Emergency Investment",
                 45000.0,
                 "LOW"
         );
 
-        boolean test5 = DatabaseManager.addPortfolio(
+        boolean test5 = DatabaseManager.generatePortfolio(
                 10,
                 "David Long Term Portfolio",
                 300000.0,

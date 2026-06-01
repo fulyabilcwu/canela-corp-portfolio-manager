@@ -22,7 +22,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "root";
-    private static final String PASSWORD = "ROOTPASSWORDS";
+    private static final String PASSWORD = "";
 
     // ============================================================
     // CONNECTION
@@ -74,7 +74,7 @@ public class DatabaseManager {
         }
     }
 
-    public String getSecurityQuestion(String email) {
+    public static String getSecurityQuestion(String email) {
         String query = "SELECT security_question FROM users WHERE email = ?";
 
         try (Connection connection = getConnection();
@@ -94,7 +94,7 @@ public class DatabaseManager {
         return null;
     }
 
-    public boolean verifySecurityQuestion(String email, String answer) {
+    public static boolean verifySecurityQuestion(String email, String answer) {
         String query = "SELECT security_answer FROM users WHERE email = ?";
 
         try (Connection connection = getConnection();
@@ -115,7 +115,7 @@ public class DatabaseManager {
         return false;
     }
 
-    public boolean resetPassword(String email, String password) {
+    public static boolean resetPassword(String email, String password) {
         String query = "UPDATE users SET password = ? where email = ?;";
 
         try (Connection connection = getConnection();
@@ -259,7 +259,7 @@ public class DatabaseManager {
     // PORTFOLIO + ASSET WRITES
     // ============================================================
 
-    public static boolean addPortfolio(int user_id, String portfolioName, Double totalValue, String riskLevel) {
+    public static boolean generatePortfolio(int user_id, String portfolioName, Double totalValue, String riskLevel) {
         String sql = "INSERT INTO Portfolios (user_id, portfolio_name, total_value, risk_level) "
                    + "VALUES (?, ?, ?, ?)";
 
@@ -281,7 +281,7 @@ public class DatabaseManager {
         }
     }
 
-    public static boolean generatePortfolio(int age, Double income, Double net_worth, String email) {
+    public static boolean completeAccount(int age, Double income, Double net_worth, String email) {
         String query = "UPDATE users SET age = ?, income = ?, net_worth = ? where email = ?;";
 
         try (Connection connection = getConnection();
@@ -319,7 +319,7 @@ public class DatabaseManager {
         }
     }
 
-    public static boolean saveAnalysis(int portfolio_id, Double estimatedValue, Double projectedGrowth, int simulationYear, Double bestCase, Double worstCase) {
+    public static boolean generateAnalysis(int portfolio_id, Double estimatedValue, Double projectedGrowth, int simulationYear, Double bestCase, Double worstCase) {
         String sql = "INSERT INTO PortfolioAnalyzer "
                    + "(portfolio_id, estimated_value, projected_growth, simulation_year, best_case, worst_case) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
@@ -430,6 +430,37 @@ public class DatabaseManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users ORDER BY user_id";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User user = new User(
+                    rs.getInt("user_id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getInt("age"),
+                    rs.getDouble("income"),
+                    rs.getDouble("net_worth"),
+                    rs.getString("security_question"),
+                    rs.getString("security_answer"),
+                    rs.getString("role")
+                );
+                users.add(user);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching users: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return users;
     }
 
     // ============================================================
@@ -615,38 +646,5 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return -1;
-    }
-    
- // ============================================================
-    // admin function
-    // ============================================================
-    public static List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT user_id, name, email, password, age, income, net_worth, security_question, security_answer FROM Users ORDER BY user_id";
-
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                User u = new User(
-                    rs.getInt("user_id"),
-                    rs.getString("name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getInt("age"),
-                    rs.getDouble("income"),
-                    rs.getDouble("net_worth"),
-                    rs.getString("security_question"),
-                    rs.getString("security_answer")
-                );
-                users.add(u);
-            }
-        } catch (Exception e) {
-            System.err.println("Error fetching users: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return users;
     }
 }
