@@ -66,42 +66,42 @@ public class portfolioBuilder extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
  
-		// Outer panel - dark gray background
+		
 		contentPane = new JPanel(new BorderLayout());
 		contentPane.setBackground(Color.DARK_GRAY);
 		setContentPane(contentPane);
  
-		// Title bar pinned to top
+		
 		lblNewLabel = new JLabel("BUILD YOUR PORTFOLIO");
 		lblNewLabel.setOpaque(true);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setForeground(Color.WHITE);
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 40));
 		lblNewLabel.setBackground(Color.BLACK);
-		lblNewLabel.setPreferredSize(new java.awt.Dimension(0, 50));
+		lblNewLabel.setPreferredSize(new java.awt.Dimension(0, 100));
 		contentPane.add(lblNewLabel, BorderLayout.NORTH);
  
-		// Wrapper panel centered in the middle — this stops fields from stretching
+		
 		JPanel centerWrapper = new JPanel(new GridBagLayout());
 		centerWrapper.setBackground(Color.DARK_GRAY);
 		contentPane.add(centerWrapper, BorderLayout.CENTER);
  
-		// The actual form — fixed width, fields won't stretch
+		
 		JPanel formPanel = new JPanel(new GridBagLayout());
 		formPanel.setBackground(Color.DARK_GRAY);
  
-		// Put formPanel in the center of centerWrapper (GridBagLayout centers by default)
+		
 		centerWrapper.add(formPanel);
  
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(12, 15, 12, 15);
 		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.NONE; // fields won't stretch
+		gbc.fill = GridBagConstraints.NONE; 
  
-		Font labelFont = new Font("Tahoma", Font.BOLD, 14);
-		java.awt.Dimension fieldSize = new java.awt.Dimension(180, 28);
+		Font labelFont = new Font("Tahoma", Font.BOLD, 75);
+		java.awt.Dimension fieldSize = new java.awt.Dimension(180, 50);
  
-		// Row 0: Age | Portfolio Name
+		
 		lblAge = new JLabel("Age:");
 		lblAge.setForeground(Color.WHITE);
 		lblAge.setFont(labelFont);
@@ -109,6 +109,7 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(lblAge, gbc);
  
 		ageField = new JTextField();
+		ageField.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		ageField.setColumns(10);
 		ageField.setPreferredSize(fieldSize);
 		gbc.gridx = 1; gbc.gridy = 0;
@@ -121,12 +122,13 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(lblPortfolioName, gbc);
  
 		portfolioNameField = new JTextField();
-		portfolioNameField.setColumns(10);
+		portfolioNameField.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		portfolioNameField.setColumns(20);
 		portfolioNameField.setPreferredSize(fieldSize);
 		gbc.gridx = 3; gbc.gridy = 0;
 		formPanel.add(portfolioNameField, gbc);
  
-		// Row 1: Income | Risk Tolerance
+		
 		lblIncome = new JLabel("Income:");
 		lblIncome.setForeground(Color.WHITE);
 		lblIncome.setFont(labelFont);
@@ -134,7 +136,8 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(lblIncome, gbc);
  
 		incomeField = new JTextField();
-		incomeField.setColumns(10);
+		incomeField.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		incomeField.setColumns(20);
 		incomeField.setPreferredSize(fieldSize);
 		gbc.gridx = 1; gbc.gridy = 1;
 		formPanel.add(incomeField, gbc);
@@ -151,10 +154,11 @@ public class portfolioBuilder extends JFrame {
 		riskComboBox.addItem("High");
 		riskComboBox.setMaximumRowCount(3);
 		riskComboBox.setPreferredSize(fieldSize);
+		riskComboBox.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		gbc.gridx = 3; gbc.gridy = 1;
 		formPanel.add(riskComboBox, gbc);
  
-		// Row 2: Net Worth
+		
 		lblNetWorth = new JLabel("Net Worth:");
 		lblNetWorth.setForeground(Color.WHITE);
 		lblNetWorth.setFont(labelFont);
@@ -162,7 +166,8 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(lblNetWorth, gbc);
  
 		netWorthField = new JTextField();
-		netWorthField.setColumns(10);
+		netWorthField.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		netWorthField.setColumns(20);
 		netWorthField.setPreferredSize(fieldSize);
 		gbc.gridx = 1; gbc.gridy = 2;
 		formPanel.add(netWorthField, gbc);
@@ -170,7 +175,8 @@ public class portfolioBuilder extends JFrame {
 		
 		JButton generatePortfolioBtn = new JButton("Generate Portfoilio");
 		generatePortfolioBtn.setBackground(new Color(255, 255, 255));
-		generatePortfolioBtn.setPreferredSize(new java.awt.Dimension(180, 35));
+		generatePortfolioBtn.setPreferredSize(new java.awt.Dimension(250, 50));
+		generatePortfolioBtn.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		generatePortfolioBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { 
 
