@@ -22,7 +22,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:mysql://localhost:3306/portfolioapp?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "ROOTPASSWORDS";
 
     // ============================================================
     // CONNECTION
@@ -577,5 +577,43 @@ public class DatabaseManager {
 
         System.out.println();
         System.out.println("DatabaseManager working correctly!");
+    }
+
+    public static int getUserIdByEmail(String email) {
+        String sql = "SELECT user_id FROM Users WHERE email = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching user_id for email " + email + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getLatestPortfolioId(int userId) {
+        String sql = "SELECT portfolio_id FROM Portfolios WHERE user_id = ? ORDER BY portfolio_id DESC LIMIT 1";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("portfolio_id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching latest portfolio_id for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

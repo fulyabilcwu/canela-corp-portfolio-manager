@@ -8,6 +8,7 @@ public class GUI extends JFrame{
     private JPanel mainPanel;
     private Image logo = new ImageIcon(getClass().getResource("logo.png")).getImage();
     private String[] secQsList;
+    private int loggedInUser = -1;
 
     public GUI(){
         database = new DatabaseManager();
@@ -65,8 +66,8 @@ public class GUI extends JFrame{
      * @return
      */
     private JPanel dashboardPanel() {
-        JPanel panel = new JPanel();
-        return panel;
+        portfolioDashboard pd = new portfolioDashboard();
+        return (JPanel) pd.getContentPane();
     }
 
     /**
@@ -74,8 +75,10 @@ public class GUI extends JFrame{
      * @return
      */
     private JPanel portfolioBuilderPanel() {
-        JPanel panel = new JPanel();
-        return panel;
+
+		portfolioBuilder pb = new portfolioBuilder(loggedInUser);
+       
+        return (JPanel) pb.getContentPane();
     }
 
     private JPanel signUpPanel() {
@@ -410,8 +413,12 @@ public class GUI extends JFrame{
             String passInput = passField.getText();
             boolean correctCredentials = database.loginUser(emailInput, passInput);
             if(correctCredentials){
-                cardLayout.show(mainPanel, "Dashboard");
-                refreshPanel("Sign In");
+            	loggedInUser = DatabaseManager.getUserIdByEmail(emailInput.trim());
+                mainPanel.remove(getPanel("Portfolio Builder"));
+                mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                cardLayout.show(mainPanel, "Portfolio Builder");
             } 
             else{
                 JOptionPane.showMessageDialog(null, "The credentials were not recognized\nPlease try again!", "Failed", JOptionPane.INFORMATION_MESSAGE);
