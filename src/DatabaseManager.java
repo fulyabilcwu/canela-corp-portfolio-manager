@@ -616,4 +616,37 @@ public class DatabaseManager {
         }
         return -1;
     }
+    
+ // ============================================================
+    // admin function
+    // ============================================================
+    public static List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT user_id, name, email, password, age, income, net_worth, security_question, security_answer FROM Users ORDER BY user_id";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User u = new User(
+                    rs.getInt("user_id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getInt("age"),
+                    rs.getDouble("income"),
+                    rs.getDouble("net_worth"),
+                    rs.getString("security_question"),
+                    rs.getString("security_answer")
+                );
+                users.add(u);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching users: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return users;
+    }
 }

@@ -3,17 +3,21 @@
 import java.awt.EventQueue;
 
 
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+
+
 import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import java.util.List;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
@@ -233,6 +237,61 @@ public class portfolioDashboard extends JFrame {
 		});
 		btnLongTerm.setBounds(400, 405, 170, 23);
 		contentPane.add(btnLongTerm);
+		
+		JButton btnViewAllPortfolios = new JButton("View All Portfolios");
+		btnViewAllPortfolios.setVisible(false);
+		btnViewAllPortfolios.setBounds(350, 50, 160, 23);
+		btnViewAllPortfolios.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
+		        StringBuilder sb = new StringBuilder();
+		        for (Portfolio p : portfolios) {
+		            sb.append("[" + p.getPortfolio_ID() + "] " + p.getPortfolioName()
+		                + " | Value: $" + p.getTotalValue()
+		                + " | Risk: " + p.getRiskLevel() + "\n");
+		        }
+		        JTextArea textArea = new JTextArea(sb.toString());
+		        textArea.setEditable(false);
+		        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "All Portfolios", JOptionPane.PLAIN_MESSAGE);
+		    }
+		});
+		contentPane.add(btnViewAllPortfolios);
+
+		JButton btnViewAllUsers = new JButton("View All Users");
+		btnViewAllUsers.setVisible(false);
+		btnViewAllUsers.setBounds(520, 50, 140, 23);
+		btnViewAllUsers.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        List<User> users = DatabaseManager.getAllUsers();
+		        StringBuilder sb = new StringBuilder();
+		        for (User u : users) {
+		            sb.append("[" + u.getUser_ID() + "] " + u.getName()
+		                + " | Email: " + u.getEmail() + "\n");
+		        }
+		        JTextArea textArea = new JTextArea(sb.toString());
+		        textArea.setEditable(false);
+		        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "All Users", JOptionPane.PLAIN_MESSAGE);
+		    }
+		});
+		contentPane.add(btnViewAllUsers);
+		
+		JButton btnAdmin = new JButton("Admin");
+		btnAdmin.setBounds(530, 15, 110, 23);
+		btnAdmin.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        String input = JOptionPane.showInputDialog(null, "Enter admin password:");
+		        if (input != null && input.equals("CANELA")) {
+		            btnViewAllPortfolios.setVisible(true);
+		            btnViewAllUsers.setVisible(true);
+		            JOptionPane.showMessageDialog(null, "Admin access granted!");
+		        } else {
+		            JOptionPane.showMessageDialog(null, "Incorrect password.");
+		        }
+		    }
+		});
+		contentPane.add(btnAdmin);
+
+		
 	}
 	
 	private int getTotalPct()
