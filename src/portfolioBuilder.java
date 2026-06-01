@@ -78,7 +78,7 @@ public class portfolioBuilder extends JFrame {
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 40));
 		lblNewLabel.setBackground(Color.BLACK);
-		lblNewLabel.setPreferredSize(new java.awt.Dimension(0, 100));
+		lblNewLabel.setPreferredSize(new java.awt.Dimension(0, 80));
 		contentPane.add(lblNewLabel, BorderLayout.NORTH);
  
 		
@@ -98,8 +98,8 @@ public class portfolioBuilder extends JFrame {
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.fill = GridBagConstraints.NONE; 
  
-		Font labelFont = new Font("Tahoma", Font.BOLD, 75);
-		java.awt.Dimension fieldSize = new java.awt.Dimension(180, 50);
+		Font labelFont = new Font("Tahoma", Font.BOLD, 25);
+		java.awt.Dimension fieldSize = new java.awt.Dimension(100, 50);
  
 		
 		lblAge = new JLabel("Age:");
@@ -123,7 +123,7 @@ public class portfolioBuilder extends JFrame {
  
 		portfolioNameField = new JTextField();
 		portfolioNameField.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		portfolioNameField.setColumns(20);
+		portfolioNameField.setColumns(10);
 		portfolioNameField.setPreferredSize(fieldSize);
 		gbc.gridx = 3; gbc.gridy = 0;
 		formPanel.add(portfolioNameField, gbc);
@@ -137,7 +137,7 @@ public class portfolioBuilder extends JFrame {
  
 		incomeField = new JTextField();
 		incomeField.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		incomeField.setColumns(20);
+		incomeField.setColumns(10);
 		incomeField.setPreferredSize(fieldSize);
 		gbc.gridx = 1; gbc.gridy = 1;
 		formPanel.add(incomeField, gbc);
@@ -167,7 +167,7 @@ public class portfolioBuilder extends JFrame {
  
 		netWorthField = new JTextField();
 		netWorthField.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		netWorthField.setColumns(20);
+		netWorthField.setColumns(10);
 		netWorthField.setPreferredSize(fieldSize);
 		gbc.gridx = 1; gbc.gridy = 2;
 		formPanel.add(netWorthField, gbc);
