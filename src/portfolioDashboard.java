@@ -293,6 +293,7 @@ public class portfolioDashboard extends JFrame {
 		contentPane.add(btnViewAllUsers);
 		
 		JButton btnAdmin = new JButton("Admin");
+		btnAdmin.setBackground(Color.WHITE);
 		btnAdmin.setBounds(530, 15, 110, 23);
 		btnAdmin.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
