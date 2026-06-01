@@ -215,8 +215,7 @@ public class portfolioDashboard extends JFrame {
 		        }
 
 		        JOptionPane.showMessageDialog(null, "Assets saved successfully!");
-		        assets.clear();
-		        assetArea.setText("");
+		        
 		        
 		        piechart.repaint();
 		    }
