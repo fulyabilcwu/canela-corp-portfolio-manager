@@ -204,6 +204,23 @@ public class portfolioBuilder extends JFrame {
 				        risk);
  
 				int portfolioId = DatabaseManager.getLatestPortfolioId(currentUserID);
+
+				// Auto-populate assets based on the selected risk level so the
+				// Monte Carlo and Long-Term Potential panels have data to work with.
+				double totalValue = Double.parseDouble(netWorth);
+				if (risk.equalsIgnoreCase("Low")) {
+					DatabaseManager.addAsset(portfolioId, "STOCK", 20.0, totalValue * 0.20);
+					DatabaseManager.addAsset(portfolioId, "BOND",  60.0, totalValue * 0.60);
+					DatabaseManager.addAsset(portfolioId, "CASH",  20.0, totalValue * 0.20);
+				} else if (risk.equalsIgnoreCase("Medium")) {
+					DatabaseManager.addAsset(portfolioId, "STOCK", 60.0, totalValue * 0.60);
+					DatabaseManager.addAsset(portfolioId, "BOND",  30.0, totalValue * 0.30);
+					DatabaseManager.addAsset(portfolioId, "CASH",  10.0, totalValue * 0.10);
+				} else { // High
+					DatabaseManager.addAsset(portfolioId, "STOCK", 80.0, totalValue * 0.80);
+					DatabaseManager.addAsset(portfolioId, "BOND",  15.0, totalValue * 0.15);
+					DatabaseManager.addAsset(portfolioId, "CASH",   5.0, totalValue * 0.05);
+				}
  
 				portfolioDashboard dash = new portfolioDashboard();
 				dash.setPortfolioId(portfolioId);

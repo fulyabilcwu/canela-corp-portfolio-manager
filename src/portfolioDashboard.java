@@ -230,12 +230,30 @@ public class portfolioDashboard extends JFrame {
 		    	JFrame longTermFrame = new JFrame("Long Term Potential");
 		        longTermFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		        longTermFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		        longTermFrame.add(new LongTermPotentialPanel());
+		        LongTermPotentialPanel panel = new LongTermPotentialPanel();
+		        panel.setOnBack(() -> longTermFrame.dispose());
+		        longTermFrame.add(panel);
 		        longTermFrame.setVisible(true);
 		    }
 		});
 		btnLongTerm.setBounds(400, 405, 170, 23);
 		contentPane.add(btnLongTerm);
+		
+		JButton btnMonteCarlo = new JButton("Monte Carlo Simulation");
+		btnMonteCarlo.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	
+		    	JFrame monteCarloFrame = new JFrame("Monte Carlo Simulation");
+		        monteCarloFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		        monteCarloFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		        MonteCarloPanel panel = new MonteCarloPanel();
+		        panel.setOnBack(() -> monteCarloFrame.dispose());
+		        monteCarloFrame.add(panel);
+		        monteCarloFrame.setVisible(true);
+		    }
+		});
+		btnMonteCarlo.setBounds(400, 435, 200, 23);
+		contentPane.add(btnMonteCarlo);
 		
 		JButton btnViewAllPortfolios = new JButton("View All Portfolios");
 		btnViewAllPortfolios.setVisible(false);
