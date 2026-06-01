@@ -197,7 +197,7 @@ public class portfolioBuilder extends JFrame {
  
 				
  
-				DatabaseManager.addPortfolio(
+				DatabaseManager.generatePortfolio(
 				        currentUserID,
 				        res,
 				        Double.parseDouble(netWorth),

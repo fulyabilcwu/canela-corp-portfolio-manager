@@ -16,6 +16,7 @@ CREATE TABLE Users (
     age INT,
     income DECIMAL(15,2),
     net_worth DECIMAL(15,2),
+    role VARCHAR(5),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -67,6 +68,8 @@ CREATE TABLE PortfolioAnalyzer (
 );
 
 -- SAMPLE DATA
+INSERT INTO USERS(name, email, password, role) values
+('Ryan Davids', 'ryan.dav.admin@gmail.com', 'admin123', 'Admin');
 
 INSERT INTO Users (name, email, password, age, income, net_worth)
 VALUES
@@ -75,6 +78,7 @@ VALUES
 ('Michael Smith', 'michael@example.com', 'pass123', 45, 120000.00, 200000.00),
 ('Emily Davis', 'emily@example.com', 'pass123', 29, 70000.00, 30000.00),
 ('David Brown', 'david@example.com', 'pass123', 38, 95000.00, 80000.00);
+
 
 INSERT INTO Portfolios (user_id, portfolio_name, total_value, risk_level)
 VALUES

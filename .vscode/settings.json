@@ -1,5 +1,8 @@
 {
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "lib/**/*.jar",
+        "libs/jcommon-1.0.23.jar",
+        "libs/jfreechart-1.0.19.jar",
+        "libs/mysql-connector-j-9.0.0.jar"
     ]
 }
