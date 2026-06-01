@@ -34,6 +34,10 @@ public class portfolioBuilder extends JFrame {
 	private JLabel lblRisk;
 	private JLabel lblNewLabel;
 	private int currentUserID;
+	
+	private static final Color HEADER_COLOR = new Color(204, 88, 80);
+    private static final Color BODY_COLOR   = new Color(245, 210, 205);
+    private static final Color TEXT_COLOR   = new Color(40, 30, 30);
  
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -68,27 +72,27 @@ public class portfolioBuilder extends JFrame {
  
 		
 		contentPane = new JPanel(new BorderLayout());
-		contentPane.setBackground(Color.DARK_GRAY);
+		contentPane.setBackground(BODY_COLOR);
 		setContentPane(contentPane);
  
 		
 		lblNewLabel = new JLabel("BUILD YOUR PORTFOLIO");
 		lblNewLabel.setOpaque(true);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setForeground(Color.WHITE);
+		lblNewLabel.setForeground(TEXT_COLOR);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 40));
-		lblNewLabel.setBackground(Color.BLACK);
+		lblNewLabel.setBackground(HEADER_COLOR);
 		lblNewLabel.setPreferredSize(new java.awt.Dimension(0, 80));
 		contentPane.add(lblNewLabel, BorderLayout.NORTH);
  
 		
 		JPanel centerWrapper = new JPanel(new GridBagLayout());
-		centerWrapper.setBackground(Color.DARK_GRAY);
+		centerWrapper.setBackground(BODY_COLOR);
 		contentPane.add(centerWrapper, BorderLayout.CENTER);
  
 		
 		JPanel formPanel = new JPanel(new GridBagLayout());
-		formPanel.setBackground(Color.DARK_GRAY);
+		formPanel.setBackground(BODY_COLOR);
  
 		
 		centerWrapper.add(formPanel);
@@ -103,7 +107,7 @@ public class portfolioBuilder extends JFrame {
  
 		
 		lblAge = new JLabel("Age:");
-		lblAge.setForeground(Color.WHITE);
+		lblAge.setForeground(TEXT_COLOR);
 		lblAge.setFont(labelFont);
 		gbc.gridx = 0; gbc.gridy = 0;
 		formPanel.add(lblAge, gbc);
@@ -116,7 +120,7 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(ageField, gbc);
  
 		lblPortfolioName = new JLabel("Portfolio Name:");
-		lblPortfolioName.setForeground(Color.WHITE);
+		lblPortfolioName.setForeground(TEXT_COLOR);
 		lblPortfolioName.setFont(labelFont);
 		gbc.gridx = 2; gbc.gridy = 0;
 		formPanel.add(lblPortfolioName, gbc);
@@ -130,7 +134,7 @@ public class portfolioBuilder extends JFrame {
  
 		
 		lblIncome = new JLabel("Income:");
-		lblIncome.setForeground(Color.WHITE);
+		lblIncome.setForeground(TEXT_COLOR);
 		lblIncome.setFont(labelFont);
 		gbc.gridx = 0; gbc.gridy = 1;
 		formPanel.add(lblIncome, gbc);
@@ -143,7 +147,7 @@ public class portfolioBuilder extends JFrame {
 		formPanel.add(incomeField, gbc);
  
 		lblRisk = new JLabel("Risk Tolerance:");
-		lblRisk.setForeground(Color.WHITE);
+		lblRisk.setForeground(TEXT_COLOR);
 		lblRisk.setFont(labelFont);
 		gbc.gridx = 2; gbc.gridy = 1;
 		formPanel.add(lblRisk, gbc);
@@ -160,7 +164,7 @@ public class portfolioBuilder extends JFrame {
  
 		
 		lblNetWorth = new JLabel("Net Worth:");
-		lblNetWorth.setForeground(Color.WHITE);
+		lblNetWorth.setForeground(TEXT_COLOR);
 		lblNetWorth.setFont(labelFont);
 		gbc.gridx = 0; gbc.gridy = 2;
 		formPanel.add(lblNetWorth, gbc);

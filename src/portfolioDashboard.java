@@ -41,6 +41,10 @@ public class portfolioDashboard extends JFrame {
 	private JTextArea assetArea;
 	private ArrayList<Asset> assets;
 	private PiechartPanel piechart;
+	
+	private static final Color HEADER_COLOR = new Color(204, 88, 80);
+    private static final Color BODY_COLOR   = new Color(245, 210, 205);
+    private static final Color TEXT_COLOR   = new Color(40, 30, 30);
 
 	/**
 	 * Launch the application.S
@@ -68,8 +72,8 @@ public class portfolioDashboard extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		contentPane = new JPanel();
-		contentPane.setForeground(Color.WHITE);
-		contentPane.setBackground(Color.DARK_GRAY);
+		contentPane.setForeground(TEXT_COLOR);
+		contentPane.setBackground(BODY_COLOR);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -88,34 +92,34 @@ public class portfolioDashboard extends JFrame {
 		contentPane.add(piechart);
 		
 		lblPortfolioName = new JLabel("New label");
-		lblPortfolioName.setForeground(Color.WHITE);
+		lblPortfolioName.setForeground(TEXT_COLOR);
 		lblPortfolioName.setFont(new Font("Tahoma", Font.BOLD, 17));
-		lblPortfolioName.setBackground(Color.BLACK);
+		lblPortfolioName.setBackground(HEADER_COLOR);
 		lblPortfolioName.setOpaque(true);
 		lblPortfolioName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPortfolioName.setBounds(0, 0, 672, 50);
 		contentPane.add(lblPortfolioName);
 		
 		lblAge = new JLabel("New label");
-		lblAge.setForeground(Color.WHITE);
+		lblAge.setForeground(TEXT_COLOR);
 		lblAge.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblAge.setBounds(21, 61, 212, 14);
 		contentPane.add(lblAge);
 		
 		lblIncome = new JLabel("New label");
-		lblIncome.setForeground(Color.WHITE);
+		lblIncome.setForeground(TEXT_COLOR);
 		lblIncome.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblIncome.setBounds(21, 96, 212, 14);
 		contentPane.add(lblIncome);
 		
 		lblRisk = new JLabel("New label");
-		lblRisk.setForeground(Color.WHITE);
+		lblRisk.setForeground(TEXT_COLOR);
 		lblRisk.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblRisk.setBounds(21, 128, 212, 14);
 		contentPane.add(lblRisk);
 		
 		lblNetWorth = new JLabel("New label");
-		lblNetWorth.setForeground(Color.WHITE);
+		lblNetWorth.setForeground(TEXT_COLOR);
 		lblNetWorth.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblNetWorth.setBounds(21, 163, 212, 14);
 		contentPane.add(lblNetWorth);
@@ -131,7 +135,7 @@ public class portfolioDashboard extends JFrame {
 		assetComboBox.addItem("Gold");
 		
 		JLabel lblNewLabel_4 = new JLabel("Add Assets: ");
-		lblNewLabel_4.setForeground(Color.WHITE);
+		lblNewLabel_4.setForeground(TEXT_COLOR);
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblNewLabel_4.setBounds(21, 199, 101, 14);
 		contentPane.add(lblNewLabel_4);
@@ -142,7 +146,7 @@ public class portfolioDashboard extends JFrame {
 		pctField.setColumns(10);
 		
 		JLabel lblPercent = new JLabel("%");
-		lblPercent.setForeground(Color.WHITE);
+		lblPercent.setForeground(TEXT_COLOR);
 		lblPercent.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblPercent.setBounds(240, 199, 28, 14);
 		contentPane.add(lblPercent);
@@ -294,6 +298,7 @@ public class portfolioDashboard extends JFrame {
 		
 		JButton btnAdmin = new JButton("Admin");
 		btnAdmin.setBackground(Color.WHITE);
+		btnAdmin.setForeground(TEXT_COLOR);
 		btnAdmin.setBounds(530, 15, 110, 23);
 		btnAdmin.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
