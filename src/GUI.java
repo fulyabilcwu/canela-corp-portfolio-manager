@@ -26,6 +26,7 @@ public class GUI extends JFrame{
     public static Runnable onBackToLogin = null;
     public static Runnable onShowMonteCarlo = null;
     public static Runnable onShowLongTerm = null;
+    public static Runnable onShowAdmin = null;
 
     public GUI(){
         database = new DatabaseManager();
@@ -47,6 +48,7 @@ public class GUI extends JFrame{
         mainPanel.add(analysisPanel(), "Analysis");
         mainPanel.add(monteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
+        mainPanel.add(adminPanel(), "Admin");
 
         // Wire up cross-panel navigation callbacks
         onPortfolioCreated = () -> {
@@ -68,6 +70,11 @@ public class GUI extends JFrame{
         onShowLongTerm = () -> {
             cardLayout.show(mainPanel, "Analysis");
             refreshPanel("Analysis");
+        };
+
+        onShowAdmin = () -> {
+            refreshPanel("Admin");
+            cardLayout.show(mainPanel, "Admin");
         };
 
         add(mainPanel);
@@ -1658,6 +1665,9 @@ public class GUI extends JFrame{
 
             case "Monte Carlo":
                 return monteCarloPanel();
+
+            case "Admin":
+                return adminPanel();
 
             default:
                 throw new IllegalArgumentException(
