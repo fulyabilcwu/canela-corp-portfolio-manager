@@ -1,16 +1,14 @@
 public class Asset {
     private int asset_ID;
     private int portfolio_ID;
-    private String assetName;
     private String assetType;
-    private int allocationPercentage;
-    private int amount;
+    private double allocationPercentage;
+    private double amount;
 
     /**
      * 
      * @param asset_ID
      * @param portfolio_ID
-     * @param assetName
      * @param assetType
      * @param allocationPercentage
      * @param amount
@@ -18,14 +16,12 @@ public class Asset {
     public Asset(
         int asset_ID,
         int portfolio_ID,
-        String assetName,
         String assetType,
-        int allocationPercentage,
-        int amount
+        double allocationPercentage,
+        double amount
     ){
         this.asset_ID = asset_ID;
         this.portfolio_ID = portfolio_ID;
-        this.assetName = assetName;
         this.assetType = assetType;
         this.allocationPercentage = allocationPercentage;
         this.amount = amount;
@@ -52,16 +48,6 @@ public class Asset {
     }
 
 
-    public String getAssetName() {
-        return assetName;
-    }
-
-
-    public void setAssetName(String assetName) {
-        this.assetName = assetName;
-    }
-
-
     public String getAssetType() {
         return assetType;
     }
@@ -72,7 +58,7 @@ public class Asset {
     }
 
 
-    public int getAllocationPercentage() {
+    public double getAllocationPercentage() {
         return allocationPercentage;
     }
 
@@ -82,13 +68,24 @@ public class Asset {
     }
 
 
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
 
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public String toString() {
+        return String.format(
+            "%-12d %-15d %-25s %-18.2f %-15.2f",
+            asset_ID,
+            portfolio_ID,
+            assetType == null ? "" : assetType,
+            allocationPercentage,
+            amount
+        );
     }
 
  }

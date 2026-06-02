@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class GUI extends JFrame{
     private DatabaseManager database;
@@ -9,6 +10,7 @@ public class GUI extends JFrame{
     private Image logo = new ImageIcon(getClass().getResource("logo.png")).getImage();
     private String[] secQsList;
     private int loggedInUser = -1;
+    private Admin privateAdmin = new Admin();
 
     // Shared portfolio context populated by portfolioBuilder
     public static int latestPortfolioId = -1;
@@ -38,6 +40,7 @@ public class GUI extends JFrame{
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
+        mainPanel.add(adminPanel(), "Admin");
         mainPanel.add(loginPanel(), "Sign In");
         mainPanel.add(signUpPanel(), "Sign Up");
         mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
@@ -72,6 +75,936 @@ public class GUI extends JFrame{
         setVisible(true);
 
     }
+
+    private JPanel adminPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(204, 88, 80));
+
+        JPanel insidePanel = new JPanel(new GridBagLayout());
+        insidePanel.setPreferredSize(new Dimension(1500, 800));
+        insidePanel.setMinimumSize(new Dimension(1500, 800));
+        insidePanel.setBackground(new Color(245, 210, 205));
+        insidePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(80, 80, 80), 1),
+                BorderFactory.createEmptyBorder(30, 45, 30, 45)
+        ));
+
+        GridBagConstraints layout = new GridBagConstraints();
+        layout.insets = new Insets(10, 10, 10, 10);
+        layout.fill = GridBagConstraints.HORIZONTAL;
+
+        ImageIcon newAccountIcon = new ImageIcon(getClass().getResource("account.png"));
+        Image i = newAccountIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        JLabel icon = new JLabel(new ImageIcon(i));
+        icon.setForeground(Color.white);
+        layout.gridx = 0;
+        layout.gridy = 0;
+        layout.gridwidth = 2;
+        insidePanel.add(icon, layout);
+
+        JLabel title = new JLabel("Admin Dashboard", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 40));
+        title.setForeground(Color.black);
+        layout.gridx = 0;
+        layout.gridy = 1;
+        insidePanel.add(title, layout);
+
+        JTextArea display = new JTextArea();
+        display.setFocusable(false);
+        display.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        layout.gridx = 0;
+        layout.gridy = 5;
+        insidePanel.add(display, layout);
+
+        JButton viewUsersButton = new JButton("View all users");
+        viewUsersButton.setBackground(new Color(60, 60, 60));
+        viewUsersButton.setForeground(Color.WHITE);
+        viewUsersButton.setFocusable(false);
+        viewUsersButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        viewUsersButton.addActionListener(e -> {
+            List<User> users = DatabaseManager.getAllUsers();
+            display.setText("");
+            display.append(String.format(
+            "%-8s %-20s %-30s %-15s %-20s %-20s %-5s %-12s %-12s %-10s%n",
+            "User_ID",
+                    "Name",
+                    "Email",
+                    "Password",
+                    "Security_Q",
+                    "Security_A",
+                    "Age",
+                    "Income",
+                    "NetWorth",
+                    "Role"));
+            display.append("________________________________________________________________________________________________________________________"
+                +"_____________________________________\n\n");
+            for(User user: users){
+                display.append(user.toString() + "\n");
+            }
+        });
+
+        JButton viewPortfoliButton = new JButton("View all Portfolios");
+        viewPortfoliButton.setBackground(new Color(60, 60, 60));
+        viewPortfoliButton.setForeground(Color.WHITE);
+        viewPortfoliButton.setFocusable(false);
+        viewPortfoliButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        viewPortfoliButton.addActionListener(e -> {
+            List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
+            display.setText("");
+            display.append(String.format(
+        "%-12s %-10s %-25s %-15s %-10s%n",
+        "Portfolio_ID",
+                "User_ID",
+                "Portfolio_Name",
+                "Total_Value",
+                "Risk_Level"));
+
+            display.append("_____________________________________________________________________________\n");
+            for(Portfolio portfolio: portfolios){
+                display.append(portfolio.toString() + "\n");
+            }
+        });
+
+        JButton viewAssetButton = new JButton("View all assets");
+        viewAssetButton.setBackground(new Color(60, 60, 60));
+        viewAssetButton.setForeground(Color.WHITE);
+        viewAssetButton.setFocusable(false);
+        viewAssetButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        viewAssetButton.addActionListener(e -> {
+            List<Asset> assets = DatabaseManager.getallAsets();
+            display.setText("");
+            display.append(String.format(
+            "%-12s %-15s %-25s %-18s %-15s%n",
+            "Asset_ID",
+                    "Portfolio_ID",
+                    "Asset_Type",
+                    "Allocation_%",
+                    "Amount"));
+            display.append("________________________________________________________________________________\n\n");
+            for(Asset asset: assets){
+                display.append(asset.toString() + "\n");
+            }
+        });
+
+        JPanel viewButtons = new JPanel(new GridLayout(0, 3, 10, 0));
+        viewButtons.setOpaque(false);
+        viewButtons.add(viewUsersButton);
+        viewButtons.add(viewPortfoliButton);
+        viewButtons.add(viewAssetButton);
+
+        layout.gridx = 0;
+        layout.gridy = 2;
+        insidePanel.add(viewButtons, layout);
+
+        // search by user panel
+
+        JPanel searchUserPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        searchUserPanel.setOpaque(false);
+
+        JTextField search = new JTextField("Search by user ID");
+        search.setForeground(Color.GRAY);
+        search.setPreferredSize(new Dimension(300, 30));
+
+        search.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (search.getText().equals("Search by user ID")) {
+                    search.setText("");
+                    search.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (search.getText().trim().isEmpty()) {
+                    search.setText("Search by user ID");
+                    search.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+        JButton searchButton = new JButton("Search");
+        searchButton.setPreferredSize(new Dimension(100, 30));
+        searchButton.setBackground(new Color(60, 60, 60));
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setFocusable(false);
+        searchButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        
+
+        searchUserPanel.add(search);
+        searchUserPanel.add(searchButton);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        insidePanel.add(searchUserPanel, layout);
+
+        // search by portfolio panel
+
+        JPanel searchPortfolioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        searchUserPanel.setOpaque(false);
+
+        JTextField searchP = new JTextField("Search by portfolio ID");
+        searchP.setForeground(Color.GRAY);
+        searchP.setPreferredSize(new Dimension(300, 30));
+
+        searchP.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (searchP.getText().equals("Search by portfolio ID")) {
+                    searchP.setText("");
+                    searchP.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (searchP.getText().trim().isEmpty()) {
+                    searchP.setText("Search by portfolio ID");
+                    searchP.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+        JButton searchPButton = new JButton("Search");
+        searchPButton.setPreferredSize(new Dimension(100, 30));
+        searchPButton.setBackground(new Color(60, 60, 60));
+        searchPButton.setForeground(Color.WHITE);
+        searchPButton.setFocusable(false);
+        searchPButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        
+        searchUserPanel.add(searchP);
+        searchUserPanel.add(searchPButton);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        insidePanel.add(searchPortfolioPanel, layout);
+
+        // search by asset panel
+
+        JPanel searchAssetPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        searchUserPanel.setOpaque(false);
+
+        JTextField searchA = new JTextField("Search by asset ID");
+        searchA.setForeground(Color.GRAY);
+        searchA.setPreferredSize(new Dimension(300, 30));
+
+        searchA.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (searchA.getText().equals("Search by asset ID")) {
+                    searchA.setText("");
+                    searchA.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (searchA.getText().trim().isEmpty()) {
+                    searchA.setText("Search by asset ID");
+                    searchA.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+        JButton searchAButton = new JButton("Search");
+        searchAButton.setPreferredSize(new Dimension(100, 30));
+        searchAButton.setBackground(new Color(60, 60, 60));
+        searchAButton.setForeground(Color.WHITE);
+        searchAButton.setFocusable(false);
+        searchAButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        
+        searchUserPanel.add(searchA);
+        searchUserPanel.add(searchAButton);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        insidePanel.add(searchPortfolioPanel, layout);
+
+
+        searchButton.addActionListener(e -> {
+            display.setText("");
+            searchP.setText("Search by portfolio ID");
+            searchP.setForeground(Color.gray);
+            searchA.setText("Search by asset ID");
+            searchA.setForeground(Color.gray);
+            insidePanel.requestFocusInWindow();
+            User user = DatabaseManager.getUserById(Integer.parseInt(search.getText()));
+            if(user != null){
+                display.append(String.format(
+            "%-8s %-20s %-30s %-15s %-20s %-20s %-5s %-12s %-12s %-10s%n",
+            "User_ID",
+                    "Name",
+                    "Email",
+                    "Password",
+                    "Security_Q",
+                    "Security_A",
+                    "Age",
+                    "Income",
+                    "NetWorth",
+                    "Role"));
+                display.append("________________________________________________________________________________________________________________________"
+                    +"_____________________________________\n\n");
+                display.append(user.toString());
+            }else JOptionPane.showMessageDialog(null, "User doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        searchPButton.addActionListener(e -> {
+            display.setText("");
+            search.setText("Search by user ID");
+            search.setForeground(Color.gray);
+            searchA.setText("Search by asset ID");
+            searchA.setForeground(Color.gray);
+            insidePanel.requestFocusInWindow();
+            Portfolio portfolio = DatabaseManager.getPortfolioById(Integer.parseInt(searchP.getText()));
+            if(portfolio != null){
+                display.setText("");
+                display.append(String.format(
+            "%-12s %-10s %-25s %-15s %-10s%n",
+            "Portfolio_ID",
+                    "User_ID",
+                    "Portfolio_Name",
+                    "Total_Value",
+                    "Risk_Level"));
+
+                display.append("_____________________________________________________________________________\n");
+                display.append(portfolio.toString());
+            }else JOptionPane.showMessageDialog(null, "Portoflio doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        searchAButton.addActionListener(e -> {
+            display.setText("");
+            search.setText("Search by user ID");
+            search.setForeground(Color.gray);
+            searchP.setText("Search by portfolio ID");
+            searchP.setForeground(Color.gray);
+            insidePanel.requestFocusInWindow();
+            Asset asset = DatabaseManager.getAssetByID(Integer.parseInt(searchP.getText()));
+            if(asset != null){
+                display.append(String.format(
+            "%-12s %-15s %-25s %-18s %-15s%n",
+            "Asset_ID",
+                    "Portfolio_ID",
+                    "Asset_Type",
+                    "Allocation_%",
+                    "Amount"));
+                display.append("________________________________________________________________________________\n\n");
+                display.append(asset.toString());
+            }else JOptionPane.showMessageDialog(null, "Sddry doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+
+        // delete buttons
+        JButton deleteUser = new JButton("Delete selected user");
+        deleteUser.setBackground(new Color(60, 60, 60));
+        deleteUser.setForeground(Color.WHITE);
+        deleteUser.setFocusable(false);
+        deleteUser.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        deleteUser.addActionListener(e -> {
+            if(search.getText().equals("Search by user ID"))JOptionPane.showMessageDialog(null, "You must search for the user_id first!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            else{
+                boolean result = privateAdmin.deleteUser(Integer.parseInt(search.getText()));
+                if(result) JOptionPane.showMessageDialog(null, "Selected user deleted successfully!", "Status", JOptionPane.INFORMATION_MESSAGE);
+                else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+        });
+
+        JButton deltePortfolio = new JButton("Delete selected portfolio");
+        deltePortfolio.setBackground(new Color(60, 60, 60));
+        deltePortfolio.setForeground(Color.WHITE);
+        deltePortfolio.setFocusable(false);
+        deltePortfolio.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        deltePortfolio.addActionListener(e -> {
+            if(searchP.getText().equals("Search by portfolio ID"))JOptionPane.showMessageDialog(null, "You must search for the portoflio_id first!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            else{
+                boolean result = privateAdmin.deletePortfolio(Integer.parseInt(searchP.getText()));
+                if(result) JOptionPane.showMessageDialog(null, "Selected portfolio deleted successfully!", "Status", JOptionPane.INFORMATION_MESSAGE);
+                else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+        });
+
+        JButton deleteAsset = new JButton("Delete selected asset");
+        deleteAsset.setBackground(new Color(60, 60, 60));
+        deleteAsset.setForeground(Color.WHITE);
+        deleteAsset.setFocusable(false);
+        deleteAsset.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        deleteAsset.addActionListener(e -> {
+            if(searchA.getText().equals("Search by asset ID"))JOptionPane.showMessageDialog(null, "You must search for the asset_id first!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            else{
+                boolean result = privateAdmin.deleteAsset(Integer.parseInt(searchA.getText()));
+                if(result) JOptionPane.showMessageDialog(null, "Selected asset deleted successfully!", "Status", JOptionPane.INFORMATION_MESSAGE);
+                else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+            
+
+        JPanel deleteButtons = new JPanel(new GridLayout(0, 3, 10, 0));
+        deleteButtons.setOpaque(false);
+        deleteButtons.add(deleteUser);
+        deleteButtons.add(deltePortfolio);
+        deleteButtons.add(deleteAsset);
+
+
+        layout.gridx = 0;
+        layout.gridy = 6;
+        insidePanel.add(deleteButtons, layout);
+
+        //update buttons
+        JButton updateUser = new JButton("Update selected users");
+        updateUser.setBackground(new Color(60, 60, 60));
+        updateUser.setForeground(Color.WHITE);
+        updateUser.setFocusable(false);
+        updateUser.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        updateUser.addActionListener(e -> {
+            String input = search.getText().trim();
+
+            if(input.equals("Search by user ID")){
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Please search for a user first."
+                );
+                return;
+            }
+
+            int userId = Integer.parseInt(input);
+
+            JDialog dialog = new JDialog(
+                (Frame) SwingUtilities.getWindowAncestor(panel),
+                "Update User",
+                true
+            );
+
+            dialog.setContentPane(updateUserPanel(userId));
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        });
+
+        JButton updatePortfolio = new JButton("Update selected Portfolios");
+        updatePortfolio.setBackground(new Color(60, 60, 60));
+        updatePortfolio.setForeground(Color.WHITE);
+        updatePortfolio.setFocusable(false);
+        updatePortfolio.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        updatePortfolio.addActionListener(e -> {
+            
+            String input = searchP.getText().trim();
+
+            if (input.isEmpty() || input.equals("Search by portfolio ID")) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "You must search for the portfolio_id first!",
+                        "Error",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            int portfolioId = Integer.parseInt(input);
+
+            JDialog dialog = new JDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(panel),
+                    "Update Portfolio",
+                    true
+            );
+
+            dialog.setContentPane(updatePortfolioPanel(portfolioId));
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        });
+
+        JButton updateAsset = new JButton("Update selected asset");
+        updateAsset.setBackground(new Color(60, 60, 60));
+        updateAsset.setForeground(Color.WHITE);
+        updateAsset.setFocusable(false);
+        updateAsset.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        updateAsset.addActionListener(e -> {
+            
+            String input = searchA.getText().trim();
+
+            if (input.isEmpty() || input.equals("Search by asset ID")) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "You must search for the asset_id first!",
+                        "Error",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            int assetId = Integer.parseInt(input);
+
+            JDialog dialog = new JDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(panel),
+                    "Update Asset",
+                    true
+            );
+
+            dialog.setContentPane(updateAssetPanel(assetId));
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+            
+        });
+
+        JPanel updateButtons = new JPanel(new GridLayout(0, 3, 10, 0));
+        updateButtons.setOpaque(false);
+        updateButtons.add(updateUser);
+        updateButtons.add(updatePortfolio);
+        updateButtons.add(updateAsset);
+
+        layout.gridx = 0;
+        layout.gridy = 7;
+        insidePanel.add(updateButtons, layout);
+
+
+        panel.add(insidePanel);
+
+        insidePanel.setFocusable(true);
+        SwingUtilities.invokeLater(() -> {
+            insidePanel.requestFocusInWindow();
+        });
+        return panel;
+    }
+
+    private JPanel updateAssetPanel(int assetId) {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(245, 210, 205));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+
+        GridBagConstraints layout = new GridBagConstraints();
+        layout.insets = new Insets(8, 8, 8, 8);
+        layout.fill = GridBagConstraints.HORIZONTAL;
+
+        Asset asset = DatabaseManager.getAssetByID(assetId);
+
+        if (asset == null) {
+            panel.add(new JLabel("Asset not found."));
+            return panel;
+        }
+
+        JLabel title = new JLabel("Update Asset", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JTextField assetTypeField =
+                new JTextField(asset.getAssetType(), 20);
+
+        JTextField allocationField =
+                new JTextField(String.valueOf(asset.getAllocationPercentage()), 20);
+
+        JTextField amountField =
+                new JTextField(String.valueOf(asset.getAmount()), 20);
+
+        JButton saveButton = new JButton("Save Changes");
+
+        layout.gridx = 0;
+        layout.gridy = 0;
+        layout.gridwidth = 2;
+        panel.add(title, layout);
+
+        layout.gridwidth = 1;
+
+        layout.gridx = 0;
+        layout.gridy = 1;
+        panel.add(new JLabel("Asset Type:"), layout);
+
+        layout.gridx = 1;
+        panel.add(assetTypeField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 2;
+        panel.add(new JLabel("Allocation %:"), layout);
+
+        layout.gridx = 1;
+        panel.add(allocationField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        panel.add(new JLabel("Amount:"), layout);
+
+        layout.gridx = 1;
+        panel.add(amountField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 4;
+        layout.gridwidth = 2;
+
+        panel.add(saveButton, layout);
+
+        saveButton.addActionListener(e -> {
+
+            try {
+
+                String assetType =
+                        assetTypeField.getText().trim();
+
+                Double allocationPercentage =
+                        Double.parseDouble(allocationField.getText().trim());
+
+                Double amount =
+                        Double.parseDouble(amountField.getText().trim());
+
+                boolean result =
+                        privateAdmin.updateAsset(
+                                assetId,
+                                assetType,
+                                allocationPercentage,
+                                amount
+                        );
+
+                if (result) {
+
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "Asset updated successfully!",
+                            "Status",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                    SwingUtilities.getWindowAncestor(panel).dispose();
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "Update failed.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+
+            } catch (NumberFormatException ex) {
+
+                JOptionPane.showMessageDialog(
+                        panel,
+                        "Allocation percentage and amount must be valid numbers.",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
+        return panel;
+    }
+
+    private JPanel updateUserPanel(int userId) {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(245, 210, 205));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+
+        GridBagConstraints layout = new GridBagConstraints();
+        layout.insets = new Insets(8, 8, 8, 8);
+        layout.fill = GridBagConstraints.HORIZONTAL;
+
+        User user = DatabaseManager.getUserById(userId);
+
+        if (user == null) {
+            panel.add(new JLabel("User not found."));
+            return panel;
+        }
+
+        JLabel title = new JLabel("Update User Information", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JTextField nameField = new JTextField(user.getName(), 20);
+        JTextField emailField = new JTextField(user.getEmail(), 20);
+        JTextField passwordField = new JTextField(user.getPassword(), 20);
+        JTextField ageField = new JTextField(String.valueOf(user.getAge()), 20);
+        JTextField incomeField = new JTextField(String.valueOf(user.getIncome()), 20);
+        JTextField netWorthField = new JTextField(String.valueOf(user.getNetWorth()), 20);
+        JTextField securityQField = new JTextField(user.getSecurityQ(), 20);
+        JTextField securityAField = new JTextField(user.getSecurityA(), 20);
+
+        JButton saveButton = new JButton("Save Changes");
+        saveButton.setBackground(new Color(60, 60, 60));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFocusable(false);
+
+        layout.gridx = 0;
+        layout.gridy = 0;
+        layout.gridwidth = 2;
+        panel.add(title, layout);
+
+        layout.gridwidth = 1;
+
+        layout.gridx = 0;
+        layout.gridy = 1;
+        panel.add(new JLabel("Name:"), layout);
+        layout.gridx = 1;
+        panel.add(nameField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 2;
+        panel.add(new JLabel("Email:"), layout);
+        layout.gridx = 1;
+        panel.add(emailField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        panel.add(new JLabel("Password:"), layout);
+        layout.gridx = 1;
+        panel.add(passwordField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 4;
+        panel.add(new JLabel("Age:"), layout);
+        layout.gridx = 1;
+        panel.add(ageField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 5;
+        panel.add(new JLabel("Income:"), layout);
+        layout.gridx = 1;
+        panel.add(incomeField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 6;
+        panel.add(new JLabel("Net Worth:"), layout);
+        layout.gridx = 1;
+        panel.add(netWorthField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 7;
+        panel.add(new JLabel("Security Question:"), layout);
+        layout.gridx = 1;
+        panel.add(securityQField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 8;
+        panel.add(new JLabel("Security Answer:"), layout);
+        layout.gridx = 1;
+        panel.add(securityAField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 9;
+        layout.gridwidth = 2;
+        panel.add(saveButton, layout);
+
+        saveButton.addActionListener(e -> {
+            try {
+                String name = nameField.getText().trim();
+                String email = emailField.getText().trim();
+                String password = passwordField.getText().trim();
+                String securityQ = securityQField.getText().trim();
+                String securityA = securityAField.getText().trim();
+
+                Integer age = Integer.parseInt(ageField.getText().trim());
+                Double income = Double.parseDouble(incomeField.getText().trim());
+                Double netWorth = Double.parseDouble(netWorthField.getText().trim());
+
+                boolean result = privateAdmin.updateUser(
+                        userId,
+                        name,
+                        email,
+                        password,
+                        age,
+                        income,
+                        netWorth,
+                        securityQ,
+                        securityA
+                );
+
+                if (result) {
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "User updated successfully!",
+                            "Status",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                    SwingUtilities.getWindowAncestor(panel).dispose();
+
+                } else {
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "Update failed.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(
+                        panel,
+                        "Age, income, and net worth must be valid numbers.",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
+        return panel;
+    }
+
+        private JPanel updatePortfolioPanel(int portfolioId) {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(245, 210, 205));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+
+        GridBagConstraints layout = new GridBagConstraints();
+        layout.insets = new Insets(8, 8, 8, 8);
+        layout.fill = GridBagConstraints.HORIZONTAL;
+
+        Portfolio portfolio =
+                DatabaseManager.getPortfolioById(portfolioId);
+
+        if (portfolio == null) {
+            panel.add(new JLabel("Portfolio not found."));
+            return panel;
+        }
+
+        JLabel title =
+                new JLabel("Update Portfolio", SwingConstants.CENTER);
+
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JTextField userIdField =
+                new JTextField(String.valueOf(portfolio.getUser_ID()), 20);
+
+        JTextField portfolioNameField =
+                new JTextField(portfolio.getPortfolioName(), 20);
+
+        JTextField totalValueField =
+                new JTextField(String.valueOf(portfolio.getTotalValue()), 20);
+
+        JTextField riskLevelField =
+                new JTextField(portfolio.getRiskLevel(), 20);
+
+        JButton saveButton = new JButton("Save Changes");
+
+        layout.gridx = 0;
+        layout.gridy = 0;
+        layout.gridwidth = 2;
+        panel.add(title, layout);
+
+        layout.gridwidth = 1;
+
+        layout.gridx = 0;
+        layout.gridy = 1;
+        panel.add(new JLabel("User ID:"), layout);
+
+        layout.gridx = 1;
+        panel.add(userIdField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 2;
+        panel.add(new JLabel("Portfolio Name:"), layout);
+
+        layout.gridx = 1;
+        panel.add(portfolioNameField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        panel.add(new JLabel("Total Value:"), layout);
+
+        layout.gridx = 1;
+        panel.add(totalValueField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 4;
+        panel.add(new JLabel("Risk Level:"), layout);
+
+        layout.gridx = 1;
+        panel.add(riskLevelField, layout);
+
+        layout.gridx = 0;
+        layout.gridy = 5;
+        layout.gridwidth = 2;
+
+        panel.add(saveButton, layout);
+
+        saveButton.addActionListener(e -> {
+
+            try {
+
+                Integer userId =
+                        Integer.parseInt(userIdField.getText().trim());
+
+                String portfolioName =
+                        portfolioNameField.getText().trim();
+
+                Double totalValue =
+                        Double.parseDouble(totalValueField.getText().trim());
+
+                String riskLevel =
+                        riskLevelField.getText().trim();
+
+                boolean result =
+                        privateAdmin.updatePortfolio(
+                                portfolioId,
+                                userId,
+                                portfolioName,
+                                totalValue,
+                                riskLevel
+                        );
+
+                if (result) {
+
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "Portfolio updated successfully!",
+                            "Status",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                    SwingUtilities.getWindowAncestor(panel).dispose();
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                            panel,
+                            "Update failed.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+
+            } catch (NumberFormatException ex) {
+
+                JOptionPane.showMessageDialog(
+                        panel,
+                        "User ID and Total Value must be valid numbers.",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+        return panel;
+    }
+
     /**
      * 
      * @return

@@ -11,6 +11,10 @@ public class Admin extends User{
         super(name, email, password, securityQ, securityA);
     }
 
+    public Admin(){
+
+    }
+
     public List<Portfolio> getAllPortfolios(){
         return DatabaseManager.getAllPortfolios();
     }
