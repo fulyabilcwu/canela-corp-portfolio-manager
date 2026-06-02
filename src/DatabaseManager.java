@@ -610,6 +610,35 @@ public class DatabaseManager {
         return null;
     }
 
+    public static List<Portfolio> getPortfoliosByUserId(int userId) {
+        List<Portfolio> portfolios = new ArrayList<>();
+
+        String sql = "SELECT * FROM portfolios WHERE user_id = ?";
+
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()) {
+                portfolios.add(new Portfolio(
+                        rs.getInt("portfolio_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("portfolio_name"),
+                        rs.getDouble("total_value"),
+                        rs.getString("risk_level")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return portfolios;
+    }
+
     public static Asset getAssetByID(int portfolioId) {
         String sql = "SELECT * FROM assets WHERE portfolio_id = ?";
 

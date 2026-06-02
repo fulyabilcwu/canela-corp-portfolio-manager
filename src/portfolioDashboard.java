@@ -92,32 +92,48 @@ public class portfolioDashboard extends JFrame {
         lblPortfolioName.setForeground(TEXT_COLOR);
         lblPortfolioName.setFont(new Font("Tahoma", Font.BOLD, 20));
 
-        JButton btnAdmin = new JButton("Admin");
-        btnAdmin.setBackground(Color.WHITE);
-        btnAdmin.setForeground(TEXT_COLOR);
-        btnAdmin.setFocusable(false);
+        
 
-        btnAdmin.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(null, "Enter admin password:");
+		JButton btnAdmin = new JButton("Admin");
+		btnAdmin.setBackground(Color.WHITE);
+		btnAdmin.setForeground(TEXT_COLOR);
+		btnAdmin.setFocusable(false);
 
-            if (input != null && input.equals("CANELA")) {
-                if (GUI.onShowAdmin != null) {
-                    GUI.onShowAdmin.run();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Admin panel is not connected.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Incorrect password.");
-            }
-        });
+		btnAdmin.addActionListener(e -> {
+			String input = JOptionPane.showInputDialog(null, "Enter admin password:");
 
-        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
-        rightHeader.setOpaque(false);
-        rightHeader.add(btnAdmin);
+			if (input != null && input.equals("CANELA")) {
+				if (GUI.onShowAdmin != null) {
+					GUI.onShowAdmin.run();
+				}
+			} else {
+				JOptionPane.showMessageDialog(null, "Incorrect password.");
+			}
+		});
+
+		JButton btnAccountSettings = new JButton("Account Settings");
+		btnAccountSettings.setBackground(Color.WHITE);
+		btnAccountSettings.setForeground(TEXT_COLOR);
+		btnAccountSettings.setFocusable(false);
+
+		btnAccountSettings.addActionListener(e -> {
+			if (GUI.onShowUserDashboard != null) {
+				GUI.onShowUserDashboard.run();
+			}
+		});
+
+
+JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+topButtons.setOpaque(false);
+
+topButtons.add(btnAdmin);
+topButtons.add(btnAccountSettings);
+
+
 
         headerPanel.add(backLink, BorderLayout.WEST);
         headerPanel.add(lblPortfolioName, BorderLayout.CENTER);
-        headerPanel.add(rightHeader, BorderLayout.EAST);
+        headerPanel.add(topButtons, BorderLayout.EAST);
 
         gbc.gridx = 0;
         gbc.gridy = 0;

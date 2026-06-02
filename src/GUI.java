@@ -27,6 +27,8 @@ public class GUI extends JFrame{
     public static Runnable onShowMonteCarlo = null;
     public static Runnable onShowLongTerm = null;
     public static Runnable onShowAdmin = null;
+    public static Runnable onShowUserDashboard = null;
+
 
     public GUI(){
         database = new DatabaseManager();
@@ -49,6 +51,7 @@ public class GUI extends JFrame{
         mainPanel.add(monteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
         mainPanel.add(adminPanel(), "Admin");
+        mainPanel.add(userDashboard(), "User Dashboard");
 
         // Wire up cross-panel navigation callbacks
         onPortfolioCreated = () -> {
@@ -75,6 +78,11 @@ public class GUI extends JFrame{
         onShowAdmin = () -> {
             refreshPanel("Admin");
             cardLayout.show(mainPanel, "Admin");
+        };
+
+        onShowUserDashboard = () -> {
+            refreshPanel("User Dashboard");
+            cardLayout.show(mainPanel, "User Dashboard");
         };
 
         add(mainPanel);
@@ -251,9 +259,6 @@ public class GUI extends JFrame{
         layout.gridy = 3;
         insidePanel.add(searchUserPanel, layout);
 
-        // search by portfolio panel
-
-        JPanel searchPortfolioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         searchUserPanel.setOpaque(false);
 
         JTextField searchP = new JTextField("Search by portfolio ID");
@@ -290,13 +295,6 @@ public class GUI extends JFrame{
         searchUserPanel.add(searchP);
         searchUserPanel.add(searchPButton);
 
-        layout.gridx = 0;
-        layout.gridy = 3;
-        insidePanel.add(searchPortfolioPanel, layout);
-
-        // search by asset panel
-
-        JPanel searchAssetPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         searchUserPanel.setOpaque(false);
 
         JTextField searchA = new JTextField("Search by asset ID");
@@ -332,10 +330,6 @@ public class GUI extends JFrame{
         
         searchUserPanel.add(searchA);
         searchUserPanel.add(searchAButton);
-
-        layout.gridx = 0;
-        layout.gridy = 3;
-        insidePanel.add(searchPortfolioPanel, layout);
 
 
         searchButton.addActionListener(e -> {
@@ -593,6 +587,16 @@ public class GUI extends JFrame{
         layout.gridy = 7;
         insidePanel.add(updateButtons, layout);
 
+        JButton backButton = createDarkButton("Back");
+        backButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Dashboard");
+        });
+
+        layout.gridx = 0;
+        layout.gridy = 8;
+        layout.gridwidth = 2;
+        insidePanel.add(backButton, layout);
+
 
         panel.add(insidePanel);
 
@@ -602,6 +606,305 @@ public class GUI extends JFrame{
         });
         return panel;
     }
+
+    private JPanel userDashboard() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(204, 88, 80));
+
+        JPanel insidePanel = new JPanel(new GridBagLayout());
+        insidePanel.setPreferredSize(new Dimension(800, 650));
+        insidePanel.setMinimumSize(new Dimension(800, 650));
+        insidePanel.setBackground(new Color(245, 210, 205));
+        insidePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(80, 80, 80), 1),
+                BorderFactory.createEmptyBorder(30, 45, 30, 45)
+        ));
+
+        GridBagConstraints layout = new GridBagConstraints();
+        layout.insets = new Insets(10, 10, 10, 10);
+        layout.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel title = new JLabel("Account Settings", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 40));
+        title.setForeground(Color.BLACK);
+
+        layout.gridx = 0;
+        layout.gridy = 0;
+        layout.gridwidth = 2;
+        insidePanel.add(title, layout);
+
+        JLabel portfolioLabel = new JLabel("Select Portfolio:");
+        portfolioLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JComboBox<Portfolio> portfolioBox = new JComboBox<>();
+
+        List<Portfolio> portfolios = DatabaseManager.getPortfoliosByUserId(loggedInUser);
+
+        for (Portfolio portfolio : portfolios) {
+            portfolioBox.addItem(portfolio);
+        }
+
+        layout.gridwidth = 1;
+        layout.gridx = 0;
+        layout.gridy = 1;
+        insidePanel.add(portfolioLabel, layout);
+
+        layout.gridx = 1;
+        insidePanel.add(portfolioBox, layout);
+
+        JLabel assetLabel = new JLabel("Select Asset:");
+        assetLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JComboBox<Asset> assetBox = new JComboBox<>();
+
+        portfolioBox.addActionListener(e -> {
+            assetBox.removeAllItems();
+
+            Portfolio selectedPortfolio =
+                    (Portfolio) portfolioBox.getSelectedItem();
+
+            if (selectedPortfolio != null) {
+                List<Asset> assets =
+                        DatabaseManager.getAssetsByPortfolioId(
+                                selectedPortfolio.getPortfolio_ID()
+                        );
+
+                for (Asset asset : assets) {
+                    assetBox.addItem(asset);
+                }
+            }
+        });
+
+        if (portfolioBox.getItemCount() > 0) {
+            portfolioBox.setSelectedIndex(0);
+        }
+
+        layout.gridx = 0;
+        layout.gridy = 2;
+        insidePanel.add(assetLabel, layout);
+
+        layout.gridx = 1;
+        insidePanel.add(assetBox, layout);
+
+        JButton updateAccount = createDarkButton("Update My Account");
+        updateAccount.addActionListener(e -> {
+            JDialog dialog = new JDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(panel),
+                    "Update Account",
+                    true
+            );
+
+            dialog.setContentPane(updateUserPanel(loggedInUser));
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        });
+
+        JButton updatePortfolio = createDarkButton("Update Selected Portfolio");
+        updatePortfolio.addActionListener(e -> {
+            Portfolio selectedPortfolio =
+                    (Portfolio) portfolioBox.getSelectedItem();
+
+            if (selectedPortfolio == null) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No portfolio selected."
+                );
+                return;
+            }
+
+            JDialog dialog = new JDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(panel),
+                    "Update Portfolio",
+                    true
+            );
+
+            dialog.setContentPane(
+                    updatePortfolioPanel(selectedPortfolio.getPortfolio_ID())
+            );
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        });
+
+        JButton updateAsset = createDarkButton("Update Selected Asset");
+        updateAsset.addActionListener(e -> {
+            Asset selectedAsset =
+                    (Asset) assetBox.getSelectedItem();
+
+            if (selectedAsset == null) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No asset selected."
+                );
+                return;
+            }
+
+            JDialog dialog = new JDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(panel),
+                    "Update Asset",
+                    true
+            );
+
+            dialog.setContentPane(
+                    updateAssetPanel(selectedAsset.getAsset_ID())
+            );
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        });
+
+        JButton deleteAsset = createDarkButton("Delete Selected Asset");
+        deleteAsset.addActionListener(e -> {
+            Asset selectedAsset =
+                    (Asset) assetBox.getSelectedItem();
+
+            if (selectedAsset == null) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No asset selected."
+                );
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    null,
+                    "Are you sure you want to delete this asset?",
+                    "Confirm Delete",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean result =
+                        privateAdmin.deleteAsset(selectedAsset.getAsset_ID());
+
+                if (result) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Asset deleted successfully."
+                    );
+
+                    refreshPanel("User Dashboard");
+                    cardLayout.show(mainPanel, "User Dashboard");
+
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Could not delete asset."
+                    );
+                }
+            }
+        });
+
+        JButton deletePortfolio = createDarkButton("Delete Selected Portfolio");
+        deletePortfolio.addActionListener(e -> {
+            Portfolio selectedPortfolio =
+                    (Portfolio) portfolioBox.getSelectedItem();
+
+            if (selectedPortfolio == null) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No portfolio selected."
+                );
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    null,
+                    "Are you sure you want to delete this portfolio?",
+                    "Confirm Delete",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean result =
+                        privateAdmin.deletePortfolio(
+                                selectedPortfolio.getPortfolio_ID()
+                        );
+
+                if (result) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Portfolio deleted successfully."
+                    );
+
+                    refreshPanel("User Dashboard");
+                    cardLayout.show(mainPanel, "User Dashboard");
+
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Could not delete portfolio."
+                    );
+                }
+            }
+        });
+
+        JButton deleteUser = createDarkButton("Delete My Account");
+        deleteUser.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                    null,
+                    "Are you sure you want to delete your account? This cannot be undone.",
+                    "Confirm Account Delete",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean result = privateAdmin.deleteUser(loggedInUser);
+
+                if (result) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Account deleted successfully."
+                    );
+
+                    loggedInUser = -1;
+                    latestPortfolioId = -1;
+
+                    cardLayout.show(mainPanel, "Sign In");
+                    refreshPanel("Sign In");
+
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Could not delete account."
+                    );
+                }
+            }
+        });
+
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        buttonPanel.setOpaque(false);
+
+        buttonPanel.add(updateAccount);
+        buttonPanel.add(updatePortfolio);
+        buttonPanel.add(updateAsset);
+        buttonPanel.add(deleteAsset);
+        buttonPanel.add(deletePortfolio);
+        buttonPanel.add(deleteUser);
+
+        layout.gridx = 0;
+        layout.gridy = 3;
+        layout.gridwidth = 2;
+        insidePanel.add(buttonPanel, layout);
+
+        JButton backButton = createDarkButton("Back");
+        backButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Dashboard");
+        });
+
+        layout.gridx = 0;
+        layout.gridy = 4;
+        layout.gridwidth = 2;
+        insidePanel.add(backButton, layout);
+
+        panel.add(insidePanel);
+
+        return panel;
+    }
+        
 
     private JPanel updateAssetPanel(int assetId) {
 
@@ -722,6 +1025,18 @@ public class GUI extends JFrame{
         });
 
         return panel;
+    }
+
+    private JButton createDarkButton(String text) {
+        JButton button = new JButton(text);
+        button.setBackground(new Color(60, 60, 60));
+        button.setForeground(Color.WHITE);
+        button.setFocusable(false);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        return button;
     }
 
     private JPanel updateUserPanel(int userId) {
@@ -1668,6 +1983,9 @@ public class GUI extends JFrame{
 
             case "Admin":
                 return adminPanel();
+                
+            case "User Dashboard":
+                return userDashboard();
 
             default:
                 throw new IllegalArgumentException(

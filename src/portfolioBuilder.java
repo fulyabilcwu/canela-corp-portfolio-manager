@@ -278,5 +278,5 @@ public class portfolioBuilder extends JFrame {
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(0, 15, 20, 15);
 		formPanel.add(backButton, gbc);
-	}
+	}	
 }
