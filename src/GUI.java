@@ -37,36 +37,143 @@ public class GUI extends JFrame{
 
 
 
+
         add(mainPanel);
         setVisible(true);
 
     }
-
+    /**
+     * 
+     * @return
+     */
     private JPanel moteCarloPanel() {
         JPanel panel = new JPanel();
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel analysisPanel() {
         JPanel panel = new JPanel();
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel dashboardPanel() {
         JPanel panel = new JPanel();
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel portfolioBuilderPanel() {
         JPanel panel = new JPanel();
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel signUpPanel() {
         JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.setBackground(new Color(97, 128, 168));
+
+        GridBagConstraints layout = new GridBagConstraints();
+
+        layout.insets = new Insets(10, 10, 10, 10);
+
+        JLabel title = new JLabel("Sign-Up");
+        title.setFont(new Font("Arial", Font.BOLD, 40));
+        layout.gridx = 1;
+        layout.gridy = 0;
+        panel.add(title, layout);
+
+
+        JLabel fName = new JLabel("First Name");
+        layout.gridx = 0;
+        layout.gridy = 2;
+        panel.add(fName, layout);
+
+        JTextField fNameF = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 2;
+        panel.add(fNameF, layout);
+
+        JLabel mName = new JLabel("Middle Name");
+        layout.gridx = 0;
+        layout.gridy = 3;
+        panel.add(mName, layout);
+
+        JTextField mNameF = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 3;
+        panel.add(mNameF, layout);
+
+        JLabel lName = new JLabel("Last Name");
+        layout.gridx = 0;
+        layout.gridy = 4;
+        panel.add(lName, layout);
+
+        JTextField lNameF = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 4;
+        panel.add(lNameF, layout);
+
+        JLabel email = new JLabel("Email");
+        layout.gridx = 0;
+        layout.gridy = 5;
+        panel.add(email, layout);
+
+        JTextField emailField = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 5;
+        panel.add(emailField, layout);
+
+        JLabel password = new JLabel("Password");
+        layout.gridx = 0;
+        layout.gridy = 6;
+        panel.add(password, layout);
+
+        JTextField passField = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 6;
+        panel.add(passField, layout);
+
+        JLabel confirmationLabel = new JLabel("Confirm New Password");
+        layout.gridx = 0;
+        layout.gridy = 7;
+        panel.add(confirmationLabel, layout);
+
+        JTextField confirmedNewPasswd = new JTextField(20);
+        layout.gridx = 1;
+        layout.gridy = 7;
+        panel.add(confirmedNewPasswd, layout);
+
+        JButton createUserAccount = new JButton("Create Account");
+            layout.gridx = 1;
+            layout.gridy = 9;
+            panel.add(createUserAccount, layout);
+            String name = fNameF.getText() +" "+ mNameF.getText() +" "+ lNameF.getText();
+            createUserAccount.addActionListener(e -> {
+            User user = new User(0, name, emailField.getText(), passField.getText());
+            // add user info to database
+        });
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel loginPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -123,9 +230,18 @@ public class GUI extends JFrame{
         layout.gridx = 1;
         layout.gridy = 6;
         panel.add(forgotPassword, layout);
+
+        signUpButton.addActionListener(e -> {
+
+            cardLayout.show(mainPanel, "Sign Up");
+        });
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel forgotPasswordPanel(){
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -166,6 +282,10 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel securityQuestionPanel() {
 
         JPanel panel = new JPanel();
@@ -220,6 +340,10 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * 
+     * @return
+     */
     private JPanel resetPasswordPanel() {
 
         JPanel panel = new JPanel();

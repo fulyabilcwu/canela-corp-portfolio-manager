@@ -3,9 +3,24 @@ public class Asset {
     private int portfolio_ID;
     private String assetName;
     private String assetType;
+<<<<<<< HEAD
     private double allocationPercentage;
     private double amount;
 
+=======
+    private int allocationPercentage;
+    private int amount;
+
+    /**
+     * 
+     * @param asset_ID
+     * @param portfolio_ID
+     * @param assetName
+     * @param assetType
+     * @param allocationPercentage
+     * @param amount
+     */
+>>>>>>> a068996 (created the sign-up panel and initiated javadoc)
     public Asset(
         int asset_ID,
         int portfolio_ID,
