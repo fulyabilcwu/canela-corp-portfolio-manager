@@ -40,7 +40,6 @@ public class GUI extends JFrame{
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        mainPanel.add(adminPanel(), "Admin");
         mainPanel.add(loginPanel(), "Sign In");
         mainPanel.add(signUpPanel(), "Sign Up");
         mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
