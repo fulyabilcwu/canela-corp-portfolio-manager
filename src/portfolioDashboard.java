@@ -69,7 +69,7 @@ public class portfolioDashboard extends JFrame {
 		
 		assets = new ArrayList<>();
 		setTitle("Portfolio Dashboard");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		contentPane = new JPanel();
 		contentPane.setForeground(TEXT_COLOR);
@@ -227,17 +227,39 @@ public class portfolioDashboard extends JFrame {
 		btnSaveAssets.setBounds(66, 405, 124, 23);
 		contentPane.add(btnSaveAssets);
 
+		JLabel backLink = new JLabel("\u2190 BACK TO PORTFOLIO");
+		backLink.setFont(new Font("Arial", Font.BOLD, 12));
+		backLink.setForeground(new Color(40, 30, 30));
+		backLink.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		backLink.setBounds(15, 17, 200, 20);
+		backLink.addMouseListener(new java.awt.event.MouseAdapter() {
+		    @Override
+		    public void mouseClicked(java.awt.event.MouseEvent e) {
+		        if (GUI.onBackToBuilder != null) {
+		            GUI.onBackToBuilder.run();
+		        } else {
+		            dispose();
+		        }
+		    }
+		});
+		contentPane.add(backLink);
+		contentPane.setComponentZOrder(backLink, 0);
+
 		JButton btnLongTerm = new JButton("Long Term Potential");
 		btnLongTerm.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		    	
-		    	JFrame longTermFrame = new JFrame("Long Term Potential");
-		        longTermFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		        longTermFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		        LongTermPotentialPanel panel = new LongTermPotentialPanel();
-		        panel.setOnBack(() -> longTermFrame.dispose());
-		        longTermFrame.add(panel);
-		        longTermFrame.setVisible(true);
+		        if (GUI.onShowLongTerm != null) {
+		            GUI.onShowLongTerm.run();
+		        } else {
+		            // Fallback: open in new window
+		            JFrame longTermFrame = new JFrame("Long Term Potential");
+		            longTermFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		            longTermFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		            LongTermPotentialPanel panel = new LongTermPotentialPanel();
+		            panel.setOnBack(() -> longTermFrame.dispose());
+		            longTermFrame.add(panel);
+		            longTermFrame.setVisible(true);
+		        }
 		    }
 		});
 		btnLongTerm.setBounds(400, 405, 170, 23);
@@ -246,14 +268,18 @@ public class portfolioDashboard extends JFrame {
 		JButton btnMonteCarlo = new JButton("Monte Carlo Simulation");
 		btnMonteCarlo.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		    	
-		    	JFrame monteCarloFrame = new JFrame("Monte Carlo Simulation");
-		        monteCarloFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		        monteCarloFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		        MonteCarloPanel panel = new MonteCarloPanel();
-		        panel.setOnBack(() -> monteCarloFrame.dispose());
-		        monteCarloFrame.add(panel);
-		        monteCarloFrame.setVisible(true);
+		        if (GUI.onShowMonteCarlo != null) {
+		            GUI.onShowMonteCarlo.run();
+		        } else {
+		            // Fallback: open in new window
+		            JFrame monteCarloFrame = new JFrame("Monte Carlo Simulation");
+		            monteCarloFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		            monteCarloFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		            MonteCarloPanel panel = new MonteCarloPanel();
+		            panel.setOnBack(() -> monteCarloFrame.dispose());
+		            monteCarloFrame.add(panel);
+		            monteCarloFrame.setVisible(true);
+		        }
 		    }
 		});
 		btnMonteCarlo.setBounds(400, 435, 200, 23);
@@ -357,6 +383,20 @@ public class portfolioDashboard extends JFrame {
 	public void setPortfolioId(int id)
 	{
 	    currentPortfolioID = id;
+	    // Load existing assets from the database so pie chart and asset
+	    // list reflect what was saved for this portfolio.
+	    assets.clear();
+	    if (assetArea != null) assetArea.setText("");
+	    java.util.List<Asset> existing = DatabaseManager.getAssetsByPortfolioId(id);
+	    if (existing != null) {
+	        for (Asset a : existing) {
+	            assets.add(a);
+	            if (assetArea != null) {
+	                assetArea.append(a.getAssetType() + " - " + a.getAllocationPercentage() + "%\n");
+	            }
+	        }
+	    }
+	    if (piechart != null) piechart.repaint();
 	}
 }
 

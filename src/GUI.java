@@ -10,6 +10,21 @@ public class GUI extends JFrame{
     private String[] secQsList;
     private int loggedInUser = -1;
 
+    // Shared portfolio context populated by portfolioBuilder
+    public static int latestPortfolioId = -1;
+    public static String latestPortfolioName = "";
+    public static String latestAge = "";
+    public static String latestIncome = "";
+    public static String latestNetWorth = "";
+    public static String latestRisk = "";
+
+    // Callbacks set by GUI for other classes to trigger card navigation
+    public static Runnable onPortfolioCreated = null;
+    public static Runnable onBackToBuilder = null;
+    public static Runnable onBackToLogin = null;
+    public static Runnable onShowMonteCarlo = null;
+    public static Runnable onShowLongTerm = null;
+
     public GUI(){
         database = new DatabaseManager();
         database.getConnection();
@@ -31,6 +46,28 @@ public class GUI extends JFrame{
         mainPanel.add(monteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
 
+        // Wire up cross-panel navigation callbacks
+        onPortfolioCreated = () -> {
+            cardLayout.show(mainPanel, "Dashboard");
+            refreshPanel("Dashboard");
+        };
+        onBackToBuilder = () -> {
+            cardLayout.show(mainPanel, "Portfolio Builder");
+        };
+        onBackToLogin = () -> {
+            loggedInUser = -1;
+            latestPortfolioId = -1;
+            cardLayout.show(mainPanel, "Sign In");
+        };
+        onShowMonteCarlo = () -> {
+            cardLayout.show(mainPanel, "Monte Carlo");
+            refreshPanel("Monte Carlo");
+        };
+        onShowLongTerm = () -> {
+            cardLayout.show(mainPanel, "Analysis");
+            refreshPanel("Analysis");
+        };
+
         add(mainPanel);
         setVisible(true);
 
@@ -42,7 +79,7 @@ public class GUI extends JFrame{
     private JPanel monteCarloPanel() {
         MonteCarloPanel panel = new MonteCarloPanel();
         panel.setOnBack(() -> {
-            cardLayout.show(mainPanel, "Portfolio Builder");
+            cardLayout.show(mainPanel, "Dashboard");
             refreshPanel("Monte Carlo");
         });
         return panel;
@@ -55,7 +92,7 @@ public class GUI extends JFrame{
     private JPanel analysisPanel() {
         LongTermPotentialPanel panel = new LongTermPotentialPanel();
         panel.setOnBack(() -> {
-            cardLayout.show(mainPanel, "Portfolio Builder");
+            cardLayout.show(mainPanel, "Dashboard");
             refreshPanel("Analysis");
         });
         return panel;
@@ -67,6 +104,14 @@ public class GUI extends JFrame{
      */
     private JPanel dashboardPanel() {
         portfolioDashboard pd = new portfolioDashboard();
+        if (latestPortfolioId != -1) {
+            pd.setPortfolioId(latestPortfolioId);
+            pd.setPortfolioText(latestPortfolioName);
+            pd.setAgeText(latestAge);
+            pd.setIncomeText(latestIncome);
+            pd.setNetWorthText(latestNetWorth);
+            pd.setRiskText(latestRisk);
+        }
         return (JPanel) pd.getContentPane();
     }
 
@@ -77,7 +122,7 @@ public class GUI extends JFrame{
     private JPanel portfolioBuilderPanel() {
 
 		portfolioBuilder pb = new portfolioBuilder(loggedInUser);
-       
+
         return (JPanel) pb.getContentPane();
     }
 
@@ -254,7 +299,21 @@ public class GUI extends JFrame{
         layout.gridx = 0;
         layout.gridy = 19;
         layout.insets = new Insets(25, 10, 10, 10);
-        insidePanel.add(createUserAccount, layout); 
+        insidePanel.add(createUserAccount, layout);
+
+        JButton signUpBack = new JButton("← Back to Sign In");
+        signUpBack.setBackground(new Color(60, 60, 60));
+        signUpBack.setForeground(Color.WHITE);
+        signUpBack.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(120, 120, 120), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        layout.gridx = 0;
+        layout.gridy = 20;
+        layout.insets = new Insets(8, 10, 10, 10);
+        insidePanel.add(signUpBack, layout);
+        signUpBack.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Sign In");
+        });
         createUserAccount.addActionListener(e -> {
             String chosenQ = (String) questionList.getSelectedItem();
             if(!fNameF.getText().isEmpty() && !lNameF.getText().isEmpty() && !passField.getText().isEmpty() && !confirmedNewPasswd.getText().isEmpty() 

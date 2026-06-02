@@ -232,14 +232,28 @@ public class portfolioBuilder extends JFrame {
 					DatabaseManager.addAsset(portfolioId, "CASH",   5.0, totalValue * 0.05);
 				}
  
-				portfolioDashboard dash = new portfolioDashboard();
-				dash.setPortfolioId(portfolioId);
-				dash.setPortfolioText(res);
-				dash.setAgeText(age);
-		        dash.setIncomeText(income);
-		        dash.setNetWorthText(netWorth);
-		        dash.setRiskText(risk);
-				dash.setVisible(true);
+				// Populate shared portfolio context for the Dashboard card
+				GUI.latestPortfolioId = portfolioId;
+				GUI.latestPortfolioName = res;
+				GUI.latestAge = age;
+				GUI.latestIncome = income;
+				GUI.latestNetWorth = netWorth;
+				GUI.latestRisk = risk;
+
+				if (GUI.onPortfolioCreated != null) {
+					// Switch to Dashboard card in the same window
+					GUI.onPortfolioCreated.run();
+				} else {
+					// Fallback for running this class outside the GUI
+					portfolioDashboard dash = new portfolioDashboard();
+					dash.setPortfolioId(portfolioId);
+					dash.setPortfolioText(res);
+					dash.setAgeText(age);
+			        dash.setIncomeText(income);
+			        dash.setNetWorthText(netWorth);
+			        dash.setRiskText(risk);
+					dash.setVisible(true);
+				}
 			}
 		});
  
@@ -248,5 +262,21 @@ public class portfolioBuilder extends JFrame {
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(30, 15, 20, 15);
 		formPanel.add(generatePortfolioBtn, gbc);
+
+		JButton backButton = new JButton("← Back to Sign In");
+		backButton.setBackground(new Color(255, 255, 255));
+		backButton.setPreferredSize(new java.awt.Dimension(220, 35));
+		backButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (GUI.onBackToLogin != null) {
+					GUI.onBackToLogin.run();
+				}
+			}
+		});
+		gbc.gridx = 0; gbc.gridy = 4;
+		gbc.gridwidth = 4;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.insets = new Insets(0, 15, 20, 15);
+		formPanel.add(backButton, gbc);
 	}
 }
