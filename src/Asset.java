@@ -31,6 +31,22 @@ public class Asset {
         this.amount = amount;
     }
 
+    // Overload: 5-arg constructor used by DatabaseManager (asset_type acts as both name and type)
+    public Asset(
+        int asset_ID,
+        int portfolio_ID,
+        String assetType,
+        double allocationPercentage,
+        double amount
+    ){
+        this.asset_ID = asset_ID;
+        this.portfolio_ID = portfolio_ID;
+        this.assetName = assetType;
+        this.assetType = assetType;
+        this.allocationPercentage = (int) allocationPercentage;
+        this.amount = (int) amount;
+    }
+
 
     public int getAsset_ID() {
         return asset_ID;

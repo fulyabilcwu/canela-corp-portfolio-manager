@@ -43,6 +43,10 @@ public class User {
             this.role = role;
     }
 
+    public User(){
+
+    }
+
     /**
      * user constructor for sign-up page
      * where the user first creates their account
@@ -180,6 +184,27 @@ public class User {
     public boolean resetPassword(String email, String password){
         return DatabaseManager.resetPassword(email, password);
     }
+
+    public boolean updatePortfolio(int portfolio_id, Integer user_id,
+        String portfolioName, Double totalValue, String riskLevel){
+            return DatabaseManager.updatePortfolio(portfolio_id, user_id, portfolioName, totalValue, riskLevel);
+    }
+
+    public String toString() {
+    return String.format(
+        "%-8d %-20s %-30s %-15s %-20s %-20s %-5d %-12.2f %-12.2f %-10s",
+        user_ID,
+        name,
+        email,
+        password,
+        securityQ,
+        securityA,
+        age,
+        income,
+        netWorth,
+        role
+    );
+}
 
 
  }

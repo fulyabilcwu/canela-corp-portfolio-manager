@@ -281,6 +281,65 @@ public class DatabaseManager {
         }
     }
 
+        public static boolean updatePortfolio(int portfolio_id, Integer user_id,
+            String portfolioName, Double totalValue, String riskLevel) {
+
+        StringBuilder sql = new StringBuilder("UPDATE portfolios SET ");
+        ArrayList<Object> values = new ArrayList<>();
+
+        if (user_id != null) {
+            sql.append("user_id = ?, ");
+            values.add(user_id);
+        }
+
+        if (portfolioName != null && !portfolioName.isEmpty()) {
+            sql.append("portfolio_name = ?, ");
+            values.add(portfolioName);
+        }
+
+        if (totalValue != null) {
+            sql.append("total_value = ?, ");
+            values.add(totalValue);
+        }
+
+        if (riskLevel != null && !riskLevel.isEmpty()) {
+            sql.append("risk_level = ?, ");
+            values.add(riskLevel);
+        }
+
+        if (values.isEmpty()) {
+            System.out.println("No fields were provided to update.");
+            return false;
+        }
+
+        sql.setLength(sql.length() - 2);
+
+        sql.append(" WHERE portfolio_id = ?");
+        values.add(portfolio_id);
+
+        try (Connection connection = getConnection();
+            PreparedStatement statement =
+                    connection.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < values.size(); i++) {
+                statement.setObject(i + 1, values.get(i));
+            }
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Could not update portfolio.");
+            e.printStackTrace();
+            return false;
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static boolean completeAccount(int age, Double income, Double net_worth, String email) {
         String query = "UPDATE users SET age = ?, income = ?, net_worth = ? where email = ?;";
 
@@ -463,6 +522,33 @@ public class DatabaseManager {
         return users;
     }
 
+    public static List<Asset> getallAsets() {
+        List<Asset> assets = new ArrayList<>();
+        String sql = "SELECT * FROM assets ORDER BY asset_id";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Asset asset = new Asset(
+                    rs.getInt("asset_id"),
+                    rs.getInt("portfolio_id"),
+                    rs.getString("asset_type"),
+                    rs.getDouble("allocation_percentage"),
+                    rs.getDouble("amount")
+                );
+                assets.add(asset);
+
+            } 
+        }catch (Exception e) {
+            System.err.println("Error fetching users: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return assets;
+    }
+
     // ============================================================
     // PORTFOLIO + ASSET READS (used by Monte Carlo / Long-Term panels)
     // ============================================================
@@ -524,6 +610,34 @@ public class DatabaseManager {
         return null;
     }
 
+    public static Asset getAssetByID(int portfolioId) {
+        String sql = "SELECT * FROM assets WHERE portfolio_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, portfolioId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Asset(
+                        rs.getInt("asset_id"),
+                        rs.getInt("portfolio_id"),
+                        rs.getString("asset_type"),
+                        rs.getDouble("allocation_percentage"),
+                        rs.getDouble("amount")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching Asset "
+                + portfolioId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
     public static List<Asset> getAssetsByPortfolioId(int portfolioId) {
         List<Asset> assets = new ArrayList<>();
         String sql = "SELECT asset_id, portfolio_id, asset_type, "
@@ -542,7 +656,6 @@ public class DatabaseManager {
                     Asset a = new Asset(
                         rs.getInt("asset_id"),
                         rs.getInt("portfolio_id"),
-                        assetName,
                         assetType,
                         rs.getInt("allocation_percentage"),
                         rs.getInt("amount")
@@ -558,6 +671,7 @@ public class DatabaseManager {
 
         return assets;
     }
+    
 
     private static String formatAssetName(String assetType) {
         if (assetType == null) {
@@ -576,39 +690,39 @@ public class DatabaseManager {
         return sb.toString().trim() + " Holdings";
     }
 
-    // ============================================================
-    // TEST
-    // ============================================================
+    // // ============================================================
+    // // TEST
+    // // ============================================================
 
-    public static void main(String[] args) {
-        System.out.println("=== Testing DatabaseManager ===");
-        System.out.println();
+    // public static void main(String[] args) {
+    //     System.out.println("=== Testing DatabaseManager ===");
+    //     System.out.println();
 
-        List<Portfolio> portfolios = getAllPortfolios();
-        System.out.println("Found " + portfolios.size() + " portfolios:");
-        for (Portfolio p : portfolios) {
-            System.out.println("  [" + p.getPortfolio_ID() + "] "
-                + p.getPortfolioName()
-                + " | total=" + p.getTotalValue()
-                + " | risk=" + p.getRiskLevel());
-        }
+    //     List<Portfolio> portfolios = getAllPortfolios();
+    //     System.out.println("Found " + portfolios.size() + " portfolios:");
+    //     for (Portfolio p : portfolios) {
+    //         System.out.println("  [" + p.getPortfolio_ID() + "] "
+    //             + p.getPortfolioName()
+    //             + " | total=" + p.getTotalValue()
+    //             + " | risk=" + p.getRiskLevel());
+    //     }
 
-        if (!portfolios.isEmpty()) {
-            int firstId = portfolios.get(0).getPortfolio_ID();
-            System.out.println();
-            System.out.println("Assets in portfolio " + firstId + ":");
-            List<Asset> assets = getAssetsByPortfolioId(firstId);
-            for (Asset a : assets) {
-                System.out.println("  " + a.getAssetName()
-                    + " (" + a.getAssetType() + "): "
-                    + a.getAllocationPercentage() + "% = "
-                    + a.getAmount());
-            }
-        }
+    //     if (!portfolios.isEmpty()) {
+    //         int firstId = portfolios.get(0).getPortfolio_ID();
+    //         System.out.println();
+    //         System.out.println("Assets in portfolio " + firstId + ":");
+    //         List<Asset> assets = getAssetsByPortfolioId(firstId);
+    //         for (Asset a : assets) {
+    //             System.out.println("  " + a.getAssetName()
+    //                 + " (" + a.getAssetType() + "): "
+    //                 + a.getAllocationPercentage() + "% = "
+    //                 + a.getAmount());
+    //         }
+    //     }
 
-        System.out.println();
-        System.out.println("DatabaseManager working correctly!");
-    }
+    //     System.out.println();
+    //     System.out.println("DatabaseManager working correctly!");
+    // }
 
     public static int getUserIdByEmail(String email) {
         String sql = "SELECT user_id FROM Users WHERE email = ?";
@@ -647,4 +761,37 @@ public class DatabaseManager {
         }
         return -1;
     }
+
+    public static User getUserById(int userId) {
+    String sql = "SELECT * FROM users WHERE user_id = ?";
+
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, userId);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return new User(
+                    rs.getInt("user_id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getInt("age"),
+                    rs.getDouble("income"),
+                    rs.getDouble("net_worth"),
+                    rs.getString("security_question"),
+                    rs.getString("security_answer"),
+                    rs.getString("role")
+                );
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+}
 }
