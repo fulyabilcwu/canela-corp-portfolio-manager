@@ -78,4 +78,13 @@ public class Portfolio {
         this.riskLevel = riskLevel;
     }
 
+    public String toString() {
+        return String.format(
+            "%-12d %-10d %-25s %-15.2f %-10s",
+            portfolio_ID,
+            user_ID,
+            portfolioName == null ? "" : portfolioName,
+            totalValue,
+            riskLevel == null ? "" : riskLevel);
+    }
  }

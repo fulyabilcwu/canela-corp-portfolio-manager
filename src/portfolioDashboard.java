@@ -175,7 +175,7 @@ public class portfolioDashboard extends JFrame {
 			                return;
 			            }
 
-			            Asset asset = new Asset(0, currentPortfolioID, assetType, assetType, pct, 0);
+			            Asset asset = new Asset(0, currentPortfolioID, assetType, pct, 0);
 
 			            assets.add(asset);
 			            piechart.repaint();

@@ -43,6 +43,10 @@ public class User {
             this.role = role;
     }
 
+    public User(){
+
+    }
+
     /**
      * user constructor for sign-up page
      * where the user first creates their account
@@ -156,7 +160,7 @@ public class User {
         return DatabaseManager.deletePortfolio(portfolio_id);
     }
 
-    public boolean addAsset(int portfolio_id, String asset_type, Double allocation_percentage, Double amount) {
+    private boolean addAsset(int portfolio_id, String asset_type, Double allocation_percentage, Double amount) {
         return DatabaseManager.addAsset(portfolio_id, asset_type, allocation_percentage, amount);
     }
 
@@ -168,7 +172,7 @@ public class User {
         return DatabaseManager.deleteAsset(asset_id);
     }
 
-    public boolean generateAnalysis(int portfolioId, double estimatedValue, double projectedGrowth,
+    private boolean generateAnalysis(int portfolioId, double estimatedValue, double projectedGrowth,
                                 int simulationYear, double bestCase, double worstCase) {
         return DatabaseManager.generateAnalysis(portfolioId, estimatedValue, projectedGrowth, simulationYear, bestCase, worstCase);
     }
@@ -180,6 +184,27 @@ public class User {
     public boolean resetPassword(String email, String password){
         return DatabaseManager.resetPassword(email, password);
     }
+
+    public boolean updatePortfolio(int portfolio_id, Integer user_id,
+        String portfolioName, Double totalValue, String riskLevel){
+            return DatabaseManager.updatePortfolio(portfolio_id, user_id, portfolioName, totalValue, riskLevel);
+    }
+
+    public String toString() {
+    return String.format(
+        "%-8d %-20s %-30s %-15s %-20s %-20s %-5d %-12.2f %-12.2f %-10s",
+        user_ID,
+        name,
+        email,
+        password,
+        securityQ,
+        securityA,
+        age,
+        income,
+        netWorth,
+        role
+    );
+}
 
 
  }
