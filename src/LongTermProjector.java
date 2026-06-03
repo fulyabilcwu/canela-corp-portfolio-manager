@@ -8,22 +8,17 @@ import java.util.ArrayList;
  *
  * Used to plot the Long-Term Potential growth curve in the GUI.
  *
- * TODO (Phase 3): Replace hardcoded constants with a MARKET_ASSUMPTIONS
- * database table lookup via DatabaseManager.
+ * Phase 3: expected returns are now pulled from REAL market data via
+ * MarketDataService (Alpha Vantage), which fetches historical prices for a
+ * representative fund per asset class and computes the annualized return.
+ * No more hardcoded constants.
  */
 public class LongTermProjector {
 
-    // Asset-type expected returns - mirror MonteCarloSimulator for consistency.
+    // Asset-type expected returns now come from real market data
+    // (historical prices via the Alpha Vantage API), not hardcoded values.
     private static double getExpectedReturn(String assetType) {
-        switch (assetType.toUpperCase()) {
-            case "STOCK":       return 0.10;
-            case "BOND":        return 0.04;
-            case "CASH":        return 0.02;
-            case "REAL_ESTATE": return 0.07;
-            case "GOLD":        return 0.05;
-            case "ETF":         return 0.09;
-            default:            return 0.05;
-        }
+        return MarketDataService.getExpectedReturn(assetType);
     }
 
     /**
