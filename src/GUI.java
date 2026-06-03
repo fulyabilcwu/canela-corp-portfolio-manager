@@ -31,6 +31,9 @@ public class GUI extends JFrame{
     public static Runnable onShowUserDashboard = null;
 
 
+    /**
+     * Constructor
+     */
     public GUI(){
         database = new DatabaseManager();
         database.getConnection();
@@ -92,6 +95,10 @@ public class GUI extends JFrame{
 
     }
 
+    /**
+     * 
+     * @return adminPanel panel
+     */
     private JPanel adminPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(204, 88, 80));
@@ -124,6 +131,8 @@ public class GUI extends JFrame{
         layout.gridy = 1;
         insidePanel.add(title, layout);
 
+        // Display area
+
         JTextArea display = new JTextArea();
         display.setFocusable(false);
         display.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -133,6 +142,7 @@ public class GUI extends JFrame{
         display.setEditable(false);
         display.setCaretPosition(0);
 
+        // scrollPane to make the display scrollable
         JScrollPane scrollPane = new JScrollPane(display);
         scrollPane.setPreferredSize(new Dimension(1200, 300));
 
@@ -148,11 +158,13 @@ public class GUI extends JFrame{
         layout.weighty = 1.0;
         insidePanel.add(scrollPane, layout);
 
-        // RESET after adding display
+        // reset layout after adding display
         layout.gridwidth = 1;
         layout.fill = GridBagConstraints.HORIZONTAL;
         layout.weightx = 0;
         layout.weighty = 0;
+
+        // create view buttons 
 
         JButton viewUsersButton = new JButton("View all users");
         viewUsersButton.setBackground(new Color(60, 60, 60));
@@ -232,6 +244,7 @@ public class GUI extends JFrame{
             display.setCaretPosition(0);
         });
 
+        // view button panel to contain all three buttons
         JPanel viewButtons = new JPanel(new GridLayout(1, 3, 20, 0));
         viewButtons.setOpaque(false);
         viewButtons.add(viewUsersButton);
@@ -245,11 +258,12 @@ public class GUI extends JFrame{
         layout.fill = GridBagConstraints.HORIZONTAL;
         insidePanel.add(viewButtons, layout);
 
-        // search by user panel
+        // search panel
 
         JPanel searchUserPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         searchUserPanel.setOpaque(false);
 
+        // search by user_id
         JTextField search = new JTextField("Search by user ID");
         search.setForeground(Color.GRAY);
         search.setPreferredSize(new Dimension(300, 30));
@@ -291,6 +305,7 @@ public class GUI extends JFrame{
 
         searchUserPanel.setOpaque(false);
 
+        // search by portfolio_id
         JTextField searchP = new JTextField("Search by portfolio ID");
         searchP.setForeground(Color.GRAY);
         searchP.setPreferredSize(new Dimension(300, 30));
@@ -327,6 +342,7 @@ public class GUI extends JFrame{
 
         searchUserPanel.setOpaque(false);
 
+        // search by asset_id
         JTextField searchA = new JTextField("Search by asset ID");
         searchA.setForeground(Color.GRAY);
         searchA.setPreferredSize(new Dimension(300, 30));
@@ -362,6 +378,7 @@ public class GUI extends JFrame{
         searchUserPanel.add(searchAButton);
 
 
+        // buttons actionListeners
         searchButton.addActionListener(e -> {
             display.setText("");
             searchP.setText("Search by portfolio ID");
@@ -488,6 +505,7 @@ public class GUI extends JFrame{
         });
             
 
+        // container panel for delete buttons
         JPanel deleteButtons = new JPanel(new GridLayout(0, 3, 10, 0));
         deleteButtons.setOpaque(false);
         deleteButtons.add(deleteUser);
@@ -609,6 +627,7 @@ public class GUI extends JFrame{
             
         });
 
+        // container panel for update buttons
         JPanel updateButtons = new JPanel(new GridLayout(0, 3, 10, 0));
         updateButtons.setOpaque(false);
         updateButtons.add(updateUser);
@@ -639,6 +658,10 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * 
+     * @return userDashboard panel
+     */
     private JPanel userDashboard() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(204, 88, 80));
@@ -665,6 +688,8 @@ public class GUI extends JFrame{
         layout.gridwidth = 2;
         insidePanel.add(title, layout);
 
+        // portfolio drop menu
+
         JLabel portfolioLabel = new JLabel("Select Portfolio:");
         portfolioLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -684,6 +709,7 @@ public class GUI extends JFrame{
         layout.gridx = 1;
         insidePanel.add(portfolioBox, layout);
 
+        // asset derop menu
         JLabel assetLabel = new JLabel("Select Asset:");
         assetLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -717,6 +743,8 @@ public class GUI extends JFrame{
 
         layout.gridx = 1;
         insidePanel.add(assetBox, layout);
+
+        // add buttons 
 
         JButton updateAccount = createDarkButton("Update My Account");
         updateAccount.addActionListener(e -> {
@@ -1061,6 +1089,11 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * 
+     * @param text
+     * @return styled button
+     */
     private JButton createDarkButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(new Color(60, 60, 60));
@@ -1073,6 +1106,11 @@ public class GUI extends JFrame{
         return button;
     }
 
+    /**
+     * 
+     * @param userId user to update
+     * @return updateUserPanel panel
+     */
     private JPanel updateUserPanel(int userId) {
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -1223,7 +1261,12 @@ public class GUI extends JFrame{
         return panel;
     }
 
-        private JPanel updatePortfolioPanel(int portfolioId) {
+    /**
+     * 
+     * @param portfolioId portfolio_id to pull record from database
+     * @return updatePortfolioPanel panel
+     */
+    private JPanel updatePortfolioPanel(int portfolioId) {
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(245, 210, 205));
@@ -1362,7 +1405,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return monteCarloPanel panel
      */
     private JPanel monteCarloPanel() {
         MonteCarloPanel panel = new MonteCarloPanel(loggedInUser);
@@ -1375,7 +1418,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return analysisPanel panel
      */
     private JPanel analysisPanel() {
         LongTermPotentialPanel panel = new LongTermPotentialPanel(loggedInUser);
@@ -1388,7 +1431,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return dashboardPanel panel
      */
     private JPanel dashboardPanel() {
         portfolioDashboard pd = new portfolioDashboard(loggedInUser);
@@ -1404,7 +1447,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return portfolioBuilderPanel panel
      */
     private JPanel portfolioBuilderPanel() {
 
@@ -1413,6 +1456,10 @@ public class GUI extends JFrame{
         return (JPanel) pb.getContentPane();
     }
 
+    /**
+     * 
+     * @return signUpPanel panel
+     */
     private JPanel signUpPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.white);
@@ -1653,7 +1700,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return loginPanel panel
      */
     private JPanel loginPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -1776,7 +1823,7 @@ public class GUI extends JFrame{
 
     /**
      * 
-     * @return
+     * @return forgotPasswordPanel panel
      */
     private JPanel forgotPasswordPanel(){
         JPanel panel = new JPanel(new GridBagLayout());
@@ -1922,6 +1969,7 @@ public class GUI extends JFrame{
         insidePanel.add(step3, layout);
         step3.setVisible(false);
 
+        // buttons appear gradually based on the user answer
         step1.addActionListener(e -> {
             if(!emailField.getText().isEmpty()){
                 questionField.setText(database.getSecurityQuestion(emailField.getText()));
@@ -1981,6 +2029,11 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * user can choose whether to open the dashboard panel 
+     * or generate a new portfolio first
+     * @return userChoicePanel panel 
+     */
     private JPanel userChoicePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(204, 88, 80));
@@ -2028,6 +2081,10 @@ public class GUI extends JFrame{
         return panel;
     }
 
+    /**
+     * removing and adding the panel to reset all fields 
+     * @param panel name of panel to refresh
+     */
     private void refreshPanel(String panel) {
         mainPanel.remove(getPanel(panel));
 
@@ -2037,6 +2094,11 @@ public class GUI extends JFrame{
         mainPanel.repaint();
     }
 
+    /**
+     * 
+     * @param panelName 
+     * @return the name of the panel in main
+     */
     private JPanel getPanel(String panelName) {
 
         switch (panelName) {
@@ -2073,4 +2135,4 @@ public class GUI extends JFrame{
                 );
         }
     }
-}
+} // end of GUI

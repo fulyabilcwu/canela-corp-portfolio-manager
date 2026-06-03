@@ -32,7 +32,10 @@ public class Asset {
         return asset_ID;
     }
 
-
+    /**
+     * 
+     * @param asset_ID
+     */
     public void setAsset_ID(int asset_ID) {
         this.asset_ID = asset_ID;
     }
@@ -42,27 +45,36 @@ public class Asset {
         return portfolio_ID;
     }
 
-
+    /**
+     * 
+     * @param portfolio_ID
+     */
     public void setPortfolio_ID(int portfolio_ID) {
         this.portfolio_ID = portfolio_ID;
     }
 
-
+    
     public String getAssetType() {
         return assetType;
     }
 
-
+    /**
+     * 
+     * @param assetType
+     */
     public void setAssetType(String assetType) {
         this.assetType = assetType;
     }
-
 
     public double getAllocationPercentage() {
         return allocationPercentage;
     }
 
 
+    /**
+     * 
+     * @param allocationPercentage
+     */
     public void setAllocationPercentage(int allocationPercentage) {
         this.allocationPercentage = allocationPercentage;
     }
@@ -72,11 +84,17 @@ public class Asset {
         return amount;
     }
 
-
+    /**
+     * 
+     * @param amount
+     */
     public void setAmount(int amount) {
         this.amount = amount;
     }
 
+    /**
+     * format the string return 
+     */
     public String toString() {
         return String.format(
             "%-12d %-15d %-25s %-18.2f %-15.2f",
@@ -88,5 +106,5 @@ public class Asset {
         );
     }
 
- }
+ }// end of Asset
 

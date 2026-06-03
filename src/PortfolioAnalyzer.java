@@ -39,6 +39,10 @@ public class PortfolioAnalyzer {
         return analysis_ID;
     }
 
+    /**
+     * 
+     * @param analysis_ID
+     */
     public void setAnalysis_ID(int analysis_ID) {
         this.analysis_ID = analysis_ID;
     }
@@ -47,6 +51,10 @@ public class PortfolioAnalyzer {
         return portfolio_ID;
     }
 
+    /**
+     * 
+     * @param portfolio_ID
+     */
     public void setPortfolio_ID(int portfolio_ID) {
         this.portfolio_ID = portfolio_ID;
     }
@@ -55,6 +63,10 @@ public class PortfolioAnalyzer {
         return bestCase;
     }
 
+    /**
+     * 
+     * @param bestCase
+     */
     public void setBestCase(double bestCase) {
         this.bestCase = bestCase;
     }
@@ -63,6 +75,10 @@ public class PortfolioAnalyzer {
         return worstCase;
     }
 
+    /**
+     * 
+     * @param worstCase
+     */
     public void setWorstCase(double worstCase) {
         this.worstCase = worstCase;
     }
@@ -71,6 +87,10 @@ public class PortfolioAnalyzer {
         return estimatedValue;
     }
 
+    /**
+     * 
+     * @param estimatedValue
+     */
     public void setEstimatedValue(double estimatedValue) {
         this.estimatedValue = estimatedValue;
     }
@@ -79,6 +99,10 @@ public class PortfolioAnalyzer {
         return projectedGrowth;
     }
 
+    /**
+     * 
+     * @param projectedGrowth
+     */
     public void setProjectedGrowth(double projectedGrowth) {
         this.projectedGrowth = projectedGrowth;
     }
@@ -87,8 +111,12 @@ public class PortfolioAnalyzer {
         return simulationYear;
     }
 
+    /**
+     * 
+     * @param simulationYear
+     */
     public void setSimulationYear(int simulationYear) {
         this.simulationYear = simulationYear;
     }
 
- }
+} // end of PortfolioAnalyzer

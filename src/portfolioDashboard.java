@@ -28,17 +28,11 @@ public class portfolioDashboard extends JFrame {
     private static final Color TEXT_COLOR = new Color(40, 30, 30);
     private static final Color BUTTON_COLOR = new Color(60, 60, 60);
 
-    // public static void main(String[] args) {
-    //     EventQueue.invokeLater(() -> {
-    //         try {
-    //             portfolioDashboard frame = new portfolioDashboard();
-    //             frame.setVisible(true);
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //         }
-    //     });
-    // }
 
+    /**
+     * Constructor
+     * @param loggedInUser
+     */
     public portfolioDashboard(int loggedInUser) {
         this.loggedInUser = loggedInUser;
         
@@ -393,6 +387,11 @@ public class portfolioDashboard extends JFrame {
         dashboardContainer.add(navigationPanel, gbc);
     }
 
+    /**
+     * 
+     * @param text
+     * @return
+     */
     private JLabel createInfoLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(TEXT_COLOR);
@@ -400,6 +399,11 @@ public class portfolioDashboard extends JFrame {
         return label;
     }
 
+    /**
+     * 
+     * @param text
+     * @return
+     */
     private JButton createDarkButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(BUTTON_COLOR);
@@ -412,6 +416,9 @@ public class portfolioDashboard extends JFrame {
         return button;
     }
 
+    /**
+     * 
+     */
     private void addAsset() {
         try {
             String assetType = assetComboBox.getSelectedItem().toString();
@@ -440,6 +447,9 @@ public class portfolioDashboard extends JFrame {
         }
     }
 
+    /**
+     * 
+     */
     private void saveAssets() {
         for (Asset asset : assets) {
             DatabaseManager.addAsset(
@@ -454,6 +464,10 @@ public class portfolioDashboard extends JFrame {
         piechart.repaint();
     }
 
+    /**
+     * 
+     * @return
+     */
     private int getTotalPct() {
         int total = 0;
 
@@ -464,22 +478,42 @@ public class portfolioDashboard extends JFrame {
         return total;
     }
 
+    /**
+     * 
+     * @param text
+     */
     public void setPortfolioText(String text) {
         lblPortfolioName.setText(text);
     }
 
+    /**
+     * 
+     * @param text
+     */
     public void setAgeText(int text) {
         lblAge.setText("Age: " + text);
     }
 
+    /**
+     * 
+     * @param text
+     */
     public void setIncomeText(double text) {
         lblIncome.setText("Income: $" + text);
     }
 
+    /**
+     * 
+     * @param text
+     */
     public void setNetWorthText(double text) {
         lblNetWorth.setText("Net Worth: " + text);
     }
 
+    /**
+     * 
+     * @param id
+     */
     public void setPortfolioId(int id) {
         currentPortfolioID = id;
 
@@ -510,4 +544,4 @@ public class portfolioDashboard extends JFrame {
             piechart.repaint();
         }
     }
-}
+}// end of portfolioDashboard

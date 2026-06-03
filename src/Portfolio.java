@@ -19,8 +19,7 @@ public class Portfolio {
         int user_ID,
         String portfolioName,
         double totalValue,
-        String riskLevel
-    ){
+        String riskLevel){
         this.portfolio_ID = portfolio_ID;
         this.user_ID = user_ID;
         this.portfolioName = portfolioName;
@@ -33,7 +32,10 @@ public class Portfolio {
         return portfolio_ID;
     }
 
-
+    /**
+     * 
+     * @param portfolio_ID
+     */
     public void setPortfolio_ID(int portfolio_ID) {
         this.portfolio_ID = portfolio_ID;
     }
@@ -43,7 +45,10 @@ public class Portfolio {
         return user_ID;
     }
 
-
+    /**
+     * 
+     * @param user_ID
+     */
     public void setUser_ID(int user_ID) {
         this.user_ID = user_ID;
     }
@@ -53,7 +58,10 @@ public class Portfolio {
         return portfolioName;
     }
 
-
+    /**
+     * 
+     * @param portfolioName
+     */
     public void setPortfolioName(String portfolioName) {
         this.portfolioName = portfolioName;
     }
@@ -63,7 +71,10 @@ public class Portfolio {
         return totalValue;
     }
 
-
+    /**
+     * 
+     * @param totalValue
+     */
     public void setTotalValue(double totalValue) {
         this.totalValue = totalValue;
     }
@@ -73,11 +84,17 @@ public class Portfolio {
         return riskLevel;
     }
 
-
+    /**
+     * 
+     * @param riskLevel
+     */
     public void setRiskLevel(String riskLevel) {
         this.riskLevel = riskLevel;
     }
 
+    /**
+     * format Portfolio
+     */
     public String toString() {
         return String.format(
             "%-12s %-10s %-45s %-15s %-10s%n",
@@ -87,4 +104,4 @@ public class Portfolio {
             totalValue,
             riskLevel == null ? "" : riskLevel);
     }
- }
+}// end of Portfolio

@@ -164,24 +164,43 @@ public class User {
         return DatabaseManager.deleteAsset(asset_id);
     }
 
-    private boolean generateAnalysis(int portfolioId, double estimatedValue, double projectedGrowth,
-                                int simulationYear, double bestCase, double worstCase) {
-        return DatabaseManager.generateAnalysis(portfolioId, estimatedValue, projectedGrowth, simulationYear, bestCase, worstCase);
-    }
-
+    /**
+     * 
+     * @param email
+     * @param password
+     * @return
+     */
     public boolean login(String email, String password){
         return DatabaseManager.loginUser(email, password);
     }
 
+    /**
+     * 
+     * @param email
+     * @param password
+     * @return
+     */
     public boolean resetPassword(String email, String password){
         return DatabaseManager.resetPassword(email, password);
     }
 
+    /**
+     * 
+     * @param portfolio_id
+     * @param user_id
+     * @param portfolioName
+     * @param totalValue
+     * @param riskLevel
+     * @return
+     */
     public boolean updatePortfolio(int portfolio_id, Integer user_id,
         String portfolioName, Double totalValue, String riskLevel){
             return DatabaseManager.updatePortfolio(portfolio_id, user_id, portfolioName, totalValue, riskLevel);
     }
 
+    /**
+     * format User
+     */
     public String toString() {
         return String.format(
             "%-8s %-20s %-30s %-20s %-40s %-25s %-5s %-12s %-12s%n",
@@ -197,4 +216,4 @@ public class User {
     }
 
 
- }
+}

@@ -1,3 +1,7 @@
+/**
+ * Canela Group
+ * Data: 06/02/2026
+ */
 import javax.swing.SwingUtilities;
 
 /**
@@ -8,4 +12,4 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new GUI());
     }
-}
+} // end of main

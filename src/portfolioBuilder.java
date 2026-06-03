@@ -341,4 +341,4 @@ public class portfolioBuilder extends JFrame {
             dash.setVisible(true);
         }
     }
-}
+} // end of portfolioBuilder
