@@ -44,11 +44,13 @@ public class MonteCarloPanel extends JPanel {
     private JComboBox<Portfolio> portfolioCombo;
     private Portfolio currentPortfolio;
     private List<Asset> currentAssets = new ArrayList<>();
+    private int currentUser;
 
     // Navigation callback — set by the host app via setOnBack()
     private Runnable onBack;
 
-    public MonteCarloPanel() {
+    public MonteCarloPanel(int currentUser) {
+        this.currentUser = currentUser;
         setLayout(new BorderLayout());
         setBackground(BODY_COLOR);
 
@@ -220,18 +222,25 @@ public class MonteCarloPanel extends JPanel {
     }
 
     private void loadPortfoliosFromDatabase() {
-        List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
+        portfolioCombo.removeAllItems();
+
+        List<Portfolio> portfolios =
+            DatabaseManager.getPortfoliosByUserId(currentUser);
+
         if (portfolios.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "No portfolios found in the database.\n"
-                + "Make sure MySQL is running and portfolioapp is loaded.",
-                "Database Empty",
+                "No portfolios found for this user.",
+                "No Portfolios",
                 JOptionPane.WARNING_MESSAGE);
             return;
         }
+
         for (Portfolio p : portfolios) {
             portfolioCombo.addItem(p);
         }
+
+        portfolioCombo.setSelectedIndex(0);
+        onPortfolioSelected();
     }
 
     private void onPortfolioSelected() {
@@ -313,21 +322,21 @@ public class MonteCarloPanel extends JPanel {
         chartContainer.repaint();
     }
 
-    public static void main(String[] args) {
-        final JFrame frame = new JFrame("Monte Carlo - Canela Portfolio Manager");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 700);
-        MonteCarloPanel panel = new MonteCarloPanel();
-        // Standalone test: clicking "Back to Portfolio" closes the window.
-        // In the integrated app the host wires this to real navigation.
-        panel.setOnBack(new Runnable() {
-            @Override
-            public void run() {
-                frame.dispose();
-            }
-        });
-        frame.add(panel);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
+    // public static void main(String[] args) {
+    //     final JFrame frame = new JFrame("Monte Carlo - Canela Portfolio Manager");
+    //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //     frame.setSize(800, 700);
+    //     MonteCarloPanel panel = new MonteCarloPanel();
+    //     // Standalone test: clicking "Back to Portfolio" closes the window.
+    //     // In the integrated app the host wires this to real navigation.
+    //     panel.setOnBack(new Runnable() {
+    //         @Override
+    //         public void run() {
+    //             frame.dispose();
+    //         }
+    //     });
+    //     frame.add(panel);
+    //     frame.setLocationRelativeTo(null);
+    //     frame.setVisible(true);
+    // }
 }

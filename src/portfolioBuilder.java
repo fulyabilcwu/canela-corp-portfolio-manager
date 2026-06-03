@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import java.awt.Font;
 import javax.swing.SwingConstants;
@@ -191,19 +192,53 @@ public class portfolioBuilder extends JFrame {
 				String portfolioName = portfolioNameField.getText();
  
 				String res = "";
- 
-				if(risk.equals("High"))
+
+
+				if(age.isEmpty() || income.isEmpty() || risk.isEmpty() || netWorth.isEmpty() || portfolioName.isEmpty())
 				{
-					res = portfolioName + "'s Aggressive Portfolio";
+					JOptionPane.showMessageDialog(portfolioBuilder.this, "Please fill in all fields before generating portfolio.");
+					return;
 				}
-				else if(risk.equals("Medium"))
-				{
-					res = portfolioName + "'s Balanced Portfolio";
-				}
-				else
-				{
-					res = portfolioName + "'s Conservative Portfolio";
-				}
+				
+				 int ageVal;
+			        try {
+			            ageVal = Integer.parseInt(age);
+			            if (ageVal <= 0 || ageVal > 120) throw new NumberFormatException();
+			        } catch (NumberFormatException ex) {
+			            JOptionPane.showMessageDialog(null,"Age must be a whole number between 1 and 120.","Invalid Age",JOptionPane.ERROR_MESSAGE);
+			            return;
+			        }
+			        
+			        double incomeVal;
+			        try {
+			            incomeVal = Double.parseDouble(income);
+			            if (incomeVal < 0) throw new NumberFormatException();
+			        } catch (NumberFormatException ex) {
+			            JOptionPane.showMessageDialog(null, "Income must be a valid positive number.",  "Invalid Income", JOptionPane.ERROR_MESSAGE);
+			            return;
+			        }
+			        
+			        double netWorthVal;
+			        try {
+			            netWorthVal = Double.parseDouble(netWorth);
+			            if (netWorthVal <= 0) throw new NumberFormatException();
+			        } catch (NumberFormatException ex) {
+			            JOptionPane.showMessageDialog(null, "Net Worth must be a valid number greater than 0.", "Invalid Net Worth", JOptionPane.ERROR_MESSAGE);
+			            return;
+			        }
+
+				// if(risk.equals("High"))
+				// {
+				// 	res = portfolioName + "'s Aggressive Portfolio";
+				// }
+				// else if(risk.equals("Medium"))
+				// {
+				// 	res = portfolioName + "'s Balanced Portfolio";
+				// }
+				// else
+				// {
+				// 	res = portfolioName + "'s Conservative Portfolio";
+				// }
  
 				
  
@@ -215,22 +250,22 @@ public class portfolioBuilder extends JFrame {
  
 				int portfolioId = DatabaseManager.getLatestPortfolioId(currentUserID);
 
-				// Auto-populate assets based on the selected risk level so the
-				// Monte Carlo and Long-Term Potential panels have data to work with.
-				double totalValue = Double.parseDouble(netWorth);
-				if (risk.equalsIgnoreCase("Low")) {
-					DatabaseManager.addAsset(portfolioId, "STOCK", 20.0, totalValue * 0.20);
-					DatabaseManager.addAsset(portfolioId, "BOND",  60.0, totalValue * 0.60);
-					DatabaseManager.addAsset(portfolioId, "CASH",  20.0, totalValue * 0.20);
-				} else if (risk.equalsIgnoreCase("Medium")) {
-					DatabaseManager.addAsset(portfolioId, "STOCK", 60.0, totalValue * 0.60);
-					DatabaseManager.addAsset(portfolioId, "BOND",  30.0, totalValue * 0.30);
-					DatabaseManager.addAsset(portfolioId, "CASH",  10.0, totalValue * 0.10);
-				} else { // High
-					DatabaseManager.addAsset(portfolioId, "STOCK", 80.0, totalValue * 0.80);
-					DatabaseManager.addAsset(portfolioId, "BOND",  15.0, totalValue * 0.15);
-					DatabaseManager.addAsset(portfolioId, "CASH",   5.0, totalValue * 0.05);
-				}
+				// // Auto-populate assets based on the selected risk level so the
+				// // Monte Carlo and Long-Term Potential panels have data to work with.
+				// double totalValue = Double.parseDouble(netWorth);
+				// if (risk.equalsIgnoreCase("Low")) {
+				// 	DatabaseManager.addAsset(portfolioId, "STOCK", 20.0, totalValue * 0.20);
+				// 	DatabaseManager.addAsset(portfolioId, "BOND",  60.0, totalValue * 0.60);
+				// 	DatabaseManager.addAsset(portfolioId, "CASH",  20.0, totalValue * 0.20);
+				// } else if (risk.equalsIgnoreCase("Medium")) {
+				// 	DatabaseManager.addAsset(portfolioId, "STOCK", 60.0, totalValue * 0.60);
+				// 	DatabaseManager.addAsset(portfolioId, "BOND",  30.0, totalValue * 0.30);
+				// 	DatabaseManager.addAsset(portfolioId, "CASH",  10.0, totalValue * 0.10);
+				// } else { // High
+				// 	DatabaseManager.addAsset(portfolioId, "STOCK", 80.0, totalValue * 0.80);
+				// 	DatabaseManager.addAsset(portfolioId, "BOND",  15.0, totalValue * 0.15);
+				// 	DatabaseManager.addAsset(portfolioId, "CASH",   5.0, totalValue * 0.05);
+				// }
  
 				// Populate shared portfolio context for the Dashboard card
 				GUI.latestPortfolioId = portfolioId;
@@ -245,7 +280,7 @@ public class portfolioBuilder extends JFrame {
 					GUI.onPortfolioCreated.run();
 				} else {
 					// Fallback for running this class outside the GUI
-					portfolioDashboard dash = new portfolioDashboard();
+					portfolioDashboard dash = new portfolioDashboard(currentUserID);
 					dash.setPortfolioId(portfolioId);
 					dash.setPortfolioText(res);
 					dash.setAgeText(age);

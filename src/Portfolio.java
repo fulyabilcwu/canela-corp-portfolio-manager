@@ -80,7 +80,7 @@ public class Portfolio {
 
     public String toString() {
         return String.format(
-            "%-12d %-10d %-25s %-15.2f %-10s",
+            "%-12s %-10s %-45s %-15s %-10s%n",
             portfolio_ID,
             user_ID,
             portfolioName == null ? "" : portfolioName,

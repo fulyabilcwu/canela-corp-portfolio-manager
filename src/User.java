@@ -8,7 +8,6 @@ public class User {
     private double netWorth;
     private String securityQ;
     private String securityA;
-    private String role;
 
     /**
      * user constructor mainly for portfolio Builder
@@ -29,8 +28,7 @@ public class User {
         double income, 
         double netWorth,
         String securityQ,
-        String securityA,
-        String role){
+        String securityA){
             this.user_ID = user_ID;
             this.name = name;
             this.email = email;
@@ -39,9 +37,7 @@ public class User {
             this.income = income;
             this.netWorth = netWorth;
             this.securityQ = securityQ;
-            this.securityA = securityA;
-            this.role = role;
-    }
+            this.securityA = securityA;}
 
     public User(){
 
@@ -135,10 +131,6 @@ public class User {
         this.securityA = securityA;
     }
 
-    public String getRole(){
-        return this.role;
-    }
-
     public boolean completeAccount(){
         return DatabaseManager.completeAccount(age, income, netWorth, email);
     }
@@ -191,20 +183,18 @@ public class User {
     }
 
     public String toString() {
-    return String.format(
-        "%-8d %-20s %-30s %-15s %-20s %-20s %-5d %-12.2f %-12.2f %-10s",
-        user_ID,
-        name,
-        email,
-        password,
-        securityQ,
-        securityA,
-        age,
-        income,
-        netWorth,
-        role
-    );
-}
+        return String.format(
+            "%-8s %-20s %-30s %-20s %-40s %-25s %-5s %-12s %-12s%n",
+            user_ID,
+            name,
+            email,
+            password,
+            securityQ,
+            securityA,
+            age,
+            income,
+            netWorth);
+    }
 
 
  }

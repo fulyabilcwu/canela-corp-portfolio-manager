@@ -509,8 +509,7 @@ public class DatabaseManager {
                     rs.getDouble("income"),
                     rs.getDouble("net_worth"),
                     rs.getString("security_question"),
-                    rs.getString("security_answer"),
-                    rs.getString("role")
+                    rs.getString("security_answer")
                 );
                 users.add(user);
             }
@@ -639,13 +638,13 @@ public class DatabaseManager {
         return portfolios;
     }
 
-    public static Asset getAssetByID(int portfolioId) {
-        String sql = "SELECT * FROM assets WHERE portfolio_id = ?";
+    public static Asset getAssetByID(int asset_id) {
+        String sql = "SELECT * FROM assets WHERE asset_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, portfolioId);
+            stmt.setInt(1, asset_id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Asset(
@@ -659,7 +658,7 @@ public class DatabaseManager {
             }
         } catch (Exception e) {
             System.err.println("Error fetching Asset "
-                + portfolioId + ": " + e.getMessage());
+                + asset_id + ": " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -811,8 +810,7 @@ public class DatabaseManager {
                     rs.getDouble("income"),
                     rs.getDouble("net_worth"),
                     rs.getString("security_question"),
-                    rs.getString("security_answer"),
-                    rs.getString("role")
+                    rs.getString("security_answer")
                 );
             }
         }

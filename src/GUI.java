@@ -47,14 +47,15 @@ public class GUI extends JFrame{
         mainPanel.add(signUpPanel(), "Sign Up");
         mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
         mainPanel.add(dashboardPanel(), "Dashboard");
-        mainPanel.add(analysisPanel(), "Analysis");
-        mainPanel.add(monteCarloPanel(), "Monte Carlo");
+        // mainPanel.add(analysisPanel(), "Analysis");
+        // mainPanel.add(monteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
         mainPanel.add(adminPanel(), "Admin");
         mainPanel.add(userDashboard(), "User Dashboard");
 
         // Wire up cross-panel navigation callbacks
         onPortfolioCreated = () -> {
+            refreshPanel("Dashboard");
             cardLayout.show(mainPanel, "Dashboard");
             refreshPanel("Dashboard");
         };
@@ -67,10 +68,11 @@ public class GUI extends JFrame{
             cardLayout.show(mainPanel, "Sign In");
         };
         onShowMonteCarlo = () -> {
-            cardLayout.show(mainPanel, "Monte Carlo");
             refreshPanel("Monte Carlo");
+            cardLayout.show(mainPanel, "Monte Carlo");
         };
         onShowLongTerm = () -> {
+            refreshPanel("Analysis");
             cardLayout.show(mainPanel, "Analysis");
             refreshPanel("Analysis");
         };
@@ -125,9 +127,32 @@ public class GUI extends JFrame{
         JTextArea display = new JTextArea();
         display.setFocusable(false);
         display.setFont(new Font("Monospaced", Font.PLAIN, 14));
+
+
+        display.setLineWrap(false);
+        display.setEditable(false);
+        display.setCaretPosition(0);
+
+        JScrollPane scrollPane = new JScrollPane(display);
+        scrollPane.setPreferredSize(new Dimension(1200, 300));
+
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
         layout.gridx = 0;
         layout.gridy = 5;
-        insidePanel.add(display, layout);
+        layout.gridwidth = 2;
+        layout.fill = GridBagConstraints.BOTH;
+        layout.weightx = 1.0;
+        layout.weighty = 1.0;
+        insidePanel.add(scrollPane, layout);
+
+        // RESET after adding display
+        layout.gridwidth = 1;
+        layout.fill = GridBagConstraints.HORIZONTAL;
+        layout.weightx = 0;
+        layout.weighty = 0;
 
         JButton viewUsersButton = new JButton("View all users");
         viewUsersButton.setBackground(new Color(60, 60, 60));
@@ -140,7 +165,7 @@ public class GUI extends JFrame{
             List<User> users = DatabaseManager.getAllUsers();
             display.setText("");
             display.append(String.format(
-            "%-8s %-20s %-30s %-15s %-20s %-20s %-5s %-12s %-12s %-10s%n",
+            "%-8s %-20s %-30s %-20s %-40s %-25s %-5s %-12s %-12s%n",
             "User_ID",
                     "Name",
                     "Email",
@@ -149,13 +174,13 @@ public class GUI extends JFrame{
                     "Security_A",
                     "Age",
                     "Income",
-                    "NetWorth",
-                    "Role"));
+                    "NetWorth"));
             display.append("________________________________________________________________________________________________________________________"
                 +"_____________________________________\n\n");
             for(User user: users){
                 display.append(user.toString() + "\n");
             }
+            display.setCaretPosition(0);
         });
 
         JButton viewPortfoliButton = new JButton("View all Portfolios");
@@ -169,7 +194,7 @@ public class GUI extends JFrame{
             List<Portfolio> portfolios = DatabaseManager.getAllPortfolios();
             display.setText("");
             display.append(String.format(
-        "%-12s %-10s %-25s %-15s %-10s%n",
+        "%-12s %-10s %-45s %-15s %-10s%n",
         "Portfolio_ID",
                 "User_ID",
                 "Portfolio_Name",
@@ -180,6 +205,7 @@ public class GUI extends JFrame{
             for(Portfolio portfolio: portfolios){
                 display.append(portfolio.toString() + "\n");
             }
+            display.setCaretPosition(0);
         });
 
         JButton viewAssetButton = new JButton("View all assets");
@@ -203,16 +229,20 @@ public class GUI extends JFrame{
             for(Asset asset: assets){
                 display.append(asset.toString() + "\n");
             }
+            display.setCaretPosition(0);
         });
 
-        JPanel viewButtons = new JPanel(new GridLayout(0, 3, 10, 0));
+        JPanel viewButtons = new JPanel(new GridLayout(1, 3, 20, 0));
         viewButtons.setOpaque(false);
         viewButtons.add(viewUsersButton);
         viewButtons.add(viewPortfoliButton);
         viewButtons.add(viewAssetButton);
+        viewButtons.setPreferredSize(new Dimension(1200, 60));
 
         layout.gridx = 0;
         layout.gridy = 2;
+        layout.gridwidth = 2;
+        layout.fill = GridBagConstraints.HORIZONTAL;
         insidePanel.add(viewButtons, layout);
 
         // search by user panel
@@ -342,7 +372,7 @@ public class GUI extends JFrame{
             User user = DatabaseManager.getUserById(Integer.parseInt(search.getText()));
             if(user != null){
                 display.append(String.format(
-            "%-8s %-20s %-30s %-15s %-20s %-20s %-5s %-12s %-12s %-10s%n",
+            "%-8s %-20s %-30s %-20s %-40s %-25s %-5s %-12s %-12s%n",
             "User_ID",
                     "Name",
                     "Email",
@@ -351,12 +381,12 @@ public class GUI extends JFrame{
                     "Security_A",
                     "Age",
                     "Income",
-                    "NetWorth",
-                    "Role"));
+                    "NetWorth"));
                 display.append("________________________________________________________________________________________________________________________"
                     +"_____________________________________\n\n");
                 display.append(user.toString());
             }else JOptionPane.showMessageDialog(null, "User doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+            display.setCaretPosition(0);
         });
 
         searchPButton.addActionListener(e -> {
@@ -370,7 +400,7 @@ public class GUI extends JFrame{
             if(portfolio != null){
                 display.setText("");
                 display.append(String.format(
-            "%-12s %-10s %-25s %-15s %-10s%n",
+            "%-12s %-10s %-45s %-15s %-10s%n",
             "Portfolio_ID",
                     "User_ID",
                     "Portfolio_Name",
@@ -380,6 +410,7 @@ public class GUI extends JFrame{
                 display.append("_____________________________________________________________________________\n");
                 display.append(portfolio.toString());
             }else JOptionPane.showMessageDialog(null, "Portoflio doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+            display.setCaretPosition(0);
         });
 
         searchAButton.addActionListener(e -> {
@@ -389,7 +420,7 @@ public class GUI extends JFrame{
             searchP.setText("Search by portfolio ID");
             searchP.setForeground(Color.gray);
             insidePanel.requestFocusInWindow();
-            Asset asset = DatabaseManager.getAssetByID(Integer.parseInt(searchP.getText()));
+            Asset asset = DatabaseManager.getAssetByID(Integer.parseInt(searchA.getText()));
             if(asset != null){
                 display.append(String.format(
             "%-12s %-15s %-25s %-18s %-15s%n",
@@ -401,6 +432,7 @@ public class GUI extends JFrame{
                 display.append("________________________________________________________________________________\n\n");
                 display.append(asset.toString());
             }else JOptionPane.showMessageDialog(null, "Sddry doesn't exist. Check your input!", "Error!", JOptionPane.INFORMATION_MESSAGE);
+            display.setCaretPosition(0);
         });
 
 
@@ -1331,7 +1363,7 @@ public class GUI extends JFrame{
      * @return
      */
     private JPanel monteCarloPanel() {
-        MonteCarloPanel panel = new MonteCarloPanel();
+        MonteCarloPanel panel = new MonteCarloPanel(loggedInUser);
         panel.setOnBack(() -> {
             cardLayout.show(mainPanel, "Dashboard");
             refreshPanel("Monte Carlo");
@@ -1344,7 +1376,7 @@ public class GUI extends JFrame{
      * @return
      */
     private JPanel analysisPanel() {
-        LongTermPotentialPanel panel = new LongTermPotentialPanel();
+        LongTermPotentialPanel panel = new LongTermPotentialPanel(loggedInUser);
         panel.setOnBack(() -> {
             cardLayout.show(mainPanel, "Dashboard");
             refreshPanel("Analysis");
@@ -1357,7 +1389,7 @@ public class GUI extends JFrame{
      * @return
      */
     private JPanel dashboardPanel() {
-        portfolioDashboard pd = new portfolioDashboard();
+        portfolioDashboard pd = new portfolioDashboard(loggedInUser);
         if (latestPortfolioId != -1) {
             pd.setPortfolioId(latestPortfolioId);
             pd.setPortfolioText(latestPortfolioName);

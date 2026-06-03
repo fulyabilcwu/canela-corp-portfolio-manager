@@ -17,6 +17,7 @@ public class portfolioDashboard extends JFrame {
     private JComboBox<String> assetComboBox;
     private JTextField pctField;
     private int currentPortfolioID;
+    private int loggedInUser;
     private JTextArea assetArea;
     private ArrayList<Asset> assets;
     private PiechartPanel piechart;
@@ -26,18 +27,19 @@ public class portfolioDashboard extends JFrame {
     private static final Color TEXT_COLOR = new Color(40, 30, 30);
     private static final Color BUTTON_COLOR = new Color(60, 60, 60);
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                portfolioDashboard frame = new portfolioDashboard();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    // public static void main(String[] args) {
+    //     EventQueue.invokeLater(() -> {
+    //         try {
+    //             portfolioDashboard frame = new portfolioDashboard();
+    //             frame.setVisible(true);
+    //         } catch (Exception e) {
+    //             e.printStackTrace();
+    //         }
+    //     });
+    // }
 
-    public portfolioDashboard() {
+    public portfolioDashboard(int loggedInUser) {
+        this.loggedInUser = loggedInUser;
 
         assets = new ArrayList<>();
 
@@ -262,7 +264,7 @@ topButtons.add(btnAccountSettings);
                 longTermFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 longTermFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-                LongTermPotentialPanel panel = new LongTermPotentialPanel();
+                LongTermPotentialPanel panel = new LongTermPotentialPanel(loggedInUser);
                 panel.setOnBack(() -> longTermFrame.dispose());
 
                 longTermFrame.add(panel);
@@ -279,7 +281,7 @@ topButtons.add(btnAccountSettings);
                 monteCarloFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 monteCarloFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-                MonteCarloPanel panel = new MonteCarloPanel();
+                MonteCarloPanel panel = new MonteCarloPanel(loggedInUser);
                 panel.setOnBack(() -> monteCarloFrame.dispose());
 
                 monteCarloFrame.add(panel);
