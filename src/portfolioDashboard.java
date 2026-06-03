@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.util.List;
 
 public class portfolioDashboard extends JFrame {
 
@@ -12,7 +13,6 @@ public class portfolioDashboard extends JFrame {
     private JLabel lblPortfolioName;
     private JLabel lblAge;
     private JLabel lblIncome;
-    private JLabel lblRisk;
     private JLabel lblNetWorth;
     private JComboBox<String> assetComboBox;
     private JTextField pctField;
@@ -21,6 +21,7 @@ public class portfolioDashboard extends JFrame {
     private JTextArea assetArea;
     private ArrayList<Asset> assets;
     private PiechartPanel piechart;
+    private JComboBox<Portfolio> portfolioCombo;
 
     private static final Color HEADER_COLOR = new Color(204, 88, 80);
     private static final Color BODY_COLOR = new Color(245, 210, 205);
@@ -40,7 +41,7 @@ public class portfolioDashboard extends JFrame {
 
     public portfolioDashboard(int loggedInUser) {
         this.loggedInUser = loggedInUser;
-
+        
         assets = new ArrayList<>();
 
         setTitle("Portfolio Dashboard");
@@ -125,13 +126,11 @@ public class portfolioDashboard extends JFrame {
 		});
 
 
-JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-topButtons.setOpaque(false);
+        JPanel topButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        topButtons.setOpaque(false);
 
-topButtons.add(btnAdmin);
-topButtons.add(btnAccountSettings);
-
-
+        topButtons.add(btnAdmin);
+        topButtons.add(btnAccountSettings);
 
         headerPanel.add(backLink, BorderLayout.WEST);
         headerPanel.add(lblPortfolioName, BorderLayout.CENTER);
@@ -142,9 +141,85 @@ topButtons.add(btnAccountSettings);
         gbc.gridwidth = 2;
         dashboardContainer.add(headerPanel, gbc);
 
+        // choose portfolio drop down menu
+
+        List<Portfolio> portfolios = DatabaseManager.getPortfoliosByUserId(loggedInUser);
+
+        portfolioCombo = new JComboBox<>();
+
+        for (Portfolio p : portfolios) {
+            portfolioCombo.addItem(p);
+        }
+
+        // Controls appearance
+        portfolioCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+
+                JLabel l = (JLabel) super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+
+                if (value instanceof Portfolio) {
+                    Portfolio p = (Portfolio) value;
+
+                    l.setText(
+                            p.getPortfolioName()
+                            + " ($"
+                            + String.format("%,.2f", p.getTotalValue())
+                            + ", "
+                            + p.getRiskLevel()
+                            + ")");
+                }
+
+                return l;
+            }
+        });
+
+        // Controls behavior
+        portfolioCombo.addActionListener(e -> {
+            Portfolio selected = (Portfolio) portfolioCombo.getSelectedItem();
+
+            if (selected != null) {
+                lblPortfolioName.setText(selected.getPortfolioName());
+                setPortfolioId(selected.getPortfolio_ID());
+
+                // Optional if you later want portfolio-specific info
+                // setRiskText(selected.getRiskLevel());
+            }
+        });
+
+        if (portfolioCombo.getItemCount() > 0) {
+            portfolioCombo.setSelectedIndex(0);
+        }
+
+        JPanel portfolioSelectPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        portfolioSelectPanel.setBackground(BODY_COLOR);
+
+        JLabel chooseLabel =
+                new JLabel("Choose Portfolio:");
+
+        chooseLabel.setFont(
+                new Font("Arial", Font.BOLD, 14));
+
+        portfolioSelectPanel.add(chooseLabel);
+        portfolioSelectPanel.add(portfolioCombo);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+
+        dashboardContainer.add(portfolioSelectPanel,gbc);
+
         JPanel infoPanel = new JPanel(new GridBagLayout());
         infoPanel.setBackground(BODY_COLOR);
         infoPanel.setBorder(BorderFactory.createTitledBorder("User Information"));
+        infoPanel.setPreferredSize(new Dimension(350, 300));
 
         GridBagConstraints infoGbc = new GridBagConstraints();
         infoGbc.insets = new Insets(8, 8, 8, 8);
@@ -153,8 +228,15 @@ topButtons.add(btnAccountSettings);
 
         lblAge = createInfoLabel("Age: ");
         lblIncome = createInfoLabel("Income: ");
-        lblRisk = createInfoLabel("Risk Tolerance: ");
         lblNetWorth = createInfoLabel("Net Worth: ");
+
+        User currentUser = DatabaseManager.getUserById(loggedInUser);
+
+        if (currentUser != null) {
+            setAgeText(currentUser.getAge());
+            setIncomeText(currentUser.getIncome());
+            setNetWorthText(currentUser.getNetWorth());
+        }
 
         infoGbc.gridy = 0;
         infoPanel.add(lblAge, infoGbc);
@@ -163,30 +245,34 @@ topButtons.add(btnAccountSettings);
         infoPanel.add(lblIncome, infoGbc);
 
         infoGbc.gridy = 2;
-        infoPanel.add(lblRisk, infoGbc);
-
-        infoGbc.gridy = 3;
         infoPanel.add(lblNetWorth, infoGbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.NORTH;
         dashboardContainer.add(infoPanel, gbc);
 
         piechart = new PiechartPanel(assets);
-        piechart.setPreferredSize(new Dimension(350, 350));
+        piechart.setPreferredSize(new Dimension(700, 400));
+        piechart.setMinimumSize(new Dimension(700, 400));
         piechart.setBackground(Color.WHITE);
         piechart.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
 
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+
         dashboardContainer.add(piechart, gbc);
 
         JPanel assetInputPanel = new JPanel(new GridBagLayout());
         assetInputPanel.setBackground(BODY_COLOR);
         assetInputPanel.setBorder(BorderFactory.createTitledBorder("Add Assets"));
+        assetInputPanel.setPreferredSize(new Dimension(350, 250));
 
         GridBagConstraints assetGbc = new GridBagConstraints();
         assetGbc.insets = new Insets(8, 8, 8, 8);
@@ -237,19 +323,28 @@ topButtons.add(btnAccountSettings);
         assetInputPanel.add(btnSaveAssets, assetGbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.NORTH;
         dashboardContainer.add(assetInputPanel, gbc);
 
-        assetArea = new JTextArea(10, 30);
+        assetArea = new JTextArea();
         assetArea.setEditable(false);
         assetArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+        assetArea.setLineWrap(false);
 
         JScrollPane scrollPane = new JScrollPane(assetArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Current Assets"));
+        scrollPane.setPreferredSize(new Dimension(700, 250));
+        scrollPane.setMinimumSize(new Dimension(700, 250));
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+
         dashboardContainer.add(scrollPane, gbc);
 
         JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
@@ -293,7 +388,7 @@ topButtons.add(btnAccountSettings);
         navigationPanel.add(btnMonteCarlo);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         dashboardContainer.add(navigationPanel, gbc);
     }
@@ -373,19 +468,15 @@ topButtons.add(btnAccountSettings);
         lblPortfolioName.setText(text);
     }
 
-    public void setAgeText(String text) {
+    public void setAgeText(int text) {
         lblAge.setText("Age: " + text);
     }
 
-    public void setIncomeText(String text) {
+    public void setIncomeText(double text) {
         lblIncome.setText("Income: $" + text);
     }
 
-    public void setRiskText(String text) {
-        lblRisk.setText("Risk Tolerance: " + text);
-    }
-
-    public void setNetWorthText(String text) {
+    public void setNetWorthText(double text) {
         lblNetWorth.setText("Net Worth: " + text);
     }
 

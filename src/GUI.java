@@ -19,6 +19,7 @@ public class GUI extends JFrame{
     public static String latestIncome = "";
     public static String latestNetWorth = "";
     public static String latestRisk = "";
+    private static User user;
 
     // Callbacks set by GUI for other classes to trigger card navigation
     public static Runnable onPortfolioCreated = null;
@@ -45,10 +46,9 @@ public class GUI extends JFrame{
 
         mainPanel.add(loginPanel(), "Sign In");
         mainPanel.add(signUpPanel(), "Sign Up");
+        mainPanel.add(userChoicePanel(), "user Choice");
         mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
         mainPanel.add(dashboardPanel(), "Dashboard");
-        // mainPanel.add(analysisPanel(), "Analysis");
-        // mainPanel.add(monteCarloPanel(), "Monte Carlo");
         mainPanel.add(forgotPasswordPanel(), "Forgot Password");
         mainPanel.add(adminPanel(), "Admin");
         mainPanel.add(userDashboard(), "User Dashboard");
@@ -60,7 +60,7 @@ public class GUI extends JFrame{
             refreshPanel("Dashboard");
         };
         onBackToBuilder = () -> {
-            cardLayout.show(mainPanel, "Portfolio Builder");
+            cardLayout.show(mainPanel, "user Choice");
         };
         onBackToLogin = () -> {
             loggedInUser = -1;
@@ -176,7 +176,7 @@ public class GUI extends JFrame{
                     "Income",
                     "NetWorth"));
             display.append("________________________________________________________________________________________________________________________"
-                +"_____________________________________\n\n");
+                +"_______________________________________________________\n\n");
             for(User user: users){
                 display.append(user.toString() + "\n");
             }
@@ -201,7 +201,7 @@ public class GUI extends JFrame{
                 "Total_Value",
                 "Risk_Level"));
 
-            display.append("_____________________________________________________________________________\n");
+            display.append("_______________________________________________________________________________________________\n");
             for(Portfolio portfolio: portfolios){
                 display.append(portfolio.toString() + "\n");
             }
@@ -924,6 +924,8 @@ public class GUI extends JFrame{
 
         JButton backButton = createDarkButton("Back");
         backButton.addActionListener(e -> {
+            refreshPanel("User Dashboard");
+            refreshPanel("Dashboard");
             cardLayout.show(mainPanel, "Dashboard");
         });
 
@@ -1393,10 +1395,9 @@ public class GUI extends JFrame{
         if (latestPortfolioId != -1) {
             pd.setPortfolioId(latestPortfolioId);
             pd.setPortfolioText(latestPortfolioName);
-            pd.setAgeText(latestAge);
-            pd.setIncomeText(latestIncome);
-            pd.setNetWorthText(latestNetWorth);
-            pd.setRiskText(latestRisk);
+            pd.setAgeText(user.getAge());
+            pd.setIncomeText(user.getIncome());
+            pd.setNetWorthText(user.getNetWorth());
         }
         return (JPanel) pd.getContentPane();
     }
@@ -1757,13 +1758,13 @@ public class GUI extends JFrame{
             String emailInput = emailField.getText();
             String passInput = passField.getText();
             boolean correctCredentials = database.loginUser(emailInput, passInput);
+            loggedInUser = DatabaseManager.getUserIdByEmail(emailInput);
+            user = DatabaseManager.getUserById(loggedInUser);
             if(correctCredentials){
             	loggedInUser = DatabaseManager.getUserIdByEmail(emailInput.trim());
-                mainPanel.remove(getPanel("Portfolio Builder"));
-                mainPanel.add(portfolioBuilderPanel(), "Portfolio Builder");
-                mainPanel.revalidate();
-                mainPanel.repaint();
-                cardLayout.show(mainPanel, "Portfolio Builder");
+                
+                cardLayout.show(mainPanel, "user Choice");
+                refreshPanel("Sign In");
             } 
             else{
                 JOptionPane.showMessageDialog(null, "The credentials were not recognized\nPlease try again!", "Failed", JOptionPane.INFORMATION_MESSAGE);
@@ -1975,6 +1976,53 @@ public class GUI extends JFrame{
             cardLayout.show(mainPanel, "Sign In");
             refreshPanel("Forgot Password");
         });
+
+        panel.add(insidePanel);
+        return panel;
+    }
+
+    private JPanel userChoicePanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(204, 88, 80));
+
+        JPanel insidePanel = new JPanel(new GridBagLayout());
+        insidePanel.setPreferredSize(new Dimension(700, 400));
+        insidePanel.setBackground(new Color(245, 210, 205));
+        insidePanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel title = new JLabel("What would you like to do?", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 32));
+        title.setForeground(Color.BLACK);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        insidePanel.add(title, gbc);
+
+        JButton createPortfolio = createDarkButton("Create New Portfolio");
+        createPortfolio.addActionListener(e -> {
+            refreshPanel("Portfolio Builder");
+            cardLayout.show(mainPanel, "Portfolio Builder");
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        insidePanel.add(createPortfolio, gbc);
+
+        JButton managePortfolios = createDarkButton("Manage Current Portfolios");
+        managePortfolios.addActionListener(e -> {
+            refreshPanel("Dashboard");
+            cardLayout.show(mainPanel, "Dashboard");
+        });
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        insidePanel.add(managePortfolios, gbc);
 
         panel.add(insidePanel);
         return panel;
