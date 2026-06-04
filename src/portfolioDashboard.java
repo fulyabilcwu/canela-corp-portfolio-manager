@@ -22,6 +22,7 @@ public class portfolioDashboard extends JFrame {
     private ArrayList<Asset> assets;
     private PiechartPanel piechart;
     private JComboBox<Portfolio> portfolioCombo;
+    private User currentUser;
 
     private static final Color HEADER_COLOR = new Color(204, 88, 80);
     private static final Color BODY_COLOR = new Color(245, 210, 205);
@@ -224,7 +225,7 @@ public class portfolioDashboard extends JFrame {
         lblIncome = createInfoLabel("Income: ");
         lblNetWorth = createInfoLabel("Net Worth: ");
 
-        User currentUser = DatabaseManager.getUserById(loggedInUser);
+        currentUser = DatabaseManager.getUserById(loggedInUser);
 
         if (currentUser != null) {
             setAgeText(currentUser.getAge());

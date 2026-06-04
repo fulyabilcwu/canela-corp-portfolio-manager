@@ -465,7 +465,13 @@ public class GUI extends JFrame{
             if(search.getText().equals("Search by user ID"))JOptionPane.showMessageDialog(null, "You must search for the user_id first!", "Error", JOptionPane.INFORMATION_MESSAGE);
             else{
                 boolean result = privateAdmin.deleteUser(Integer.parseInt(search.getText()));
-                if(result) JOptionPane.showMessageDialog(null, "Selected user deleted successfully!", "Status", JOptionPane.INFORMATION_MESSAGE);
+                if(result){
+                    JOptionPane.showMessageDialog(null, "Selected user deleted successfully!", "Status", JOptionPane.INFORMATION_MESSAGE);
+                    if(Integer.parseInt(search.getText()) == loggedInUser){
+                        cardLayout.show(mainPanel, "Sign In");
+                        refreshPanel("Sign In");
+                    }
+                }
                 else JOptionPane.showMessageDialog(null, "Something went wrong!", "Error", JOptionPane.INFORMATION_MESSAGE);
             }
             
@@ -640,6 +646,7 @@ public class GUI extends JFrame{
 
         JButton backButton = createDarkButton("Back");
         backButton.addActionListener(e -> {
+            refreshPanel("Dashboard");
             cardLayout.show(mainPanel, "Dashboard");
         });
 

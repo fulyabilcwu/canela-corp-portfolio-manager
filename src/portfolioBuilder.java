@@ -300,7 +300,7 @@ public class portfolioBuilder extends JFrame {
                 "",
                 ageVal,
                 incomeVal,
-                null,
+                totalValueVal,
                 "",
                 ""
         );
@@ -338,6 +338,9 @@ public class portfolioBuilder extends JFrame {
             portfolioDashboard dash = new portfolioDashboard(currentUserID);
             dash.setPortfolioId(portfolioId);
             dash.setPortfolioText(portfolioName);
+            dash.setAgeText(ageVal);
+            dash.setIncomeText(incomeVal);
+            dash.setNetWorthText(totalValueVal);
             dash.setVisible(true);
         }
     }
