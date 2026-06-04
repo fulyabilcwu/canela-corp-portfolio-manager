@@ -11,40 +11,26 @@ import java.util.Collections;
  * Expected return and volatility are calculated as a weighted average
  * of each asset's type, using the asset's allocation percentage.
  *
- * TODO (Phase 3): Replace hardcoded constants with a MARKET_ASSUMPTIONS
- * database table lookup via DatabaseManager. Table schema:
- *   asset_type (varchar PK), expected_return (decimal), volatility (decimal)
+ * Phase 3: expected return AND volatility are now pulled from REAL market
+ * data via MarketDataService (Alpha Vantage), which fetches historical prices
+ * per asset class and computes the annualized return (CAGR) and the annualized
+ * standard deviation of monthly returns. No more hardcoded constants.
  */
 public class MonteCarloSimulator {
 
     // Number of simulated future scenarios. 10,000 gives stable results.
     private static final int NUM_SIMULATIONS = 10000;
 
-    // Annual expected return for each asset type (decimal form).
-    // Based on approximate long-run historical averages.
+    // Annual expected return now comes from REAL market data
+    // (historical prices via the Alpha Vantage API), not hardcoded values.
     private static double getExpectedReturn(String assetType) {
-        switch (assetType.toUpperCase()) {
-            case "STOCK":       return 0.10;   // 10% - equities long-run average
-            case "BOND":        return 0.04;   // 4%  - investment-grade bonds
-            case "CASH":        return 0.02;   // 2%  - money market / savings
-            case "REAL_ESTATE": return 0.07;   // 7%  - REITs long-run average
-            case "GOLD":        return 0.05;   // 5%  - gold long-run average
-            case "ETF":         return 0.09;   // 9%  - mixed equity ETFs
-            default:            return 0.05;   // fallback for unknown types
-        }
+        return MarketDataService.getExpectedReturn(assetType);
     }
 
-    // Annual volatility (standard deviation of returns) for each asset type.
+    // Annual volatility now comes from REAL market data: the standard
+    // deviation of the asset's historical monthly returns, annualized.
     private static double getVolatility(String assetType) {
-        switch (assetType.toUpperCase()) {
-            case "STOCK":       return 0.18;   // High volatility
-            case "BOND":        return 0.06;   // Low volatility
-            case "CASH":        return 0.01;   // Very stable
-            case "REAL_ESTATE": return 0.15;   // Moderate-high
-            case "GOLD":        return 0.18;   // High - commodity swings
-            case "ETF":         return 0.16;   // Slightly less than single stocks
-            default:            return 0.15;
-        }
+        return MarketDataService.getVolatility(assetType);
     }
 
     /**
